@@ -676,14 +676,8 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="schedule" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k" id="schedSeason">Loading…</div><h2>Schedule</h2>
 </div>
-  <div class="rows">
-    <div class="row tbd"><div class="d" data-mt="0"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
-    <div class="row tbd"><div class="d" data-mt="1"></div><div class="m">Topic to be decided<small><span id="schedVote"></span>.</small></div><div class="s">Vote open</div></div>
-    <div class="row tbd"><div class="d" data-mt="2"></div><div class="m">Topic to be decided<small><span id="schedSub1"></span>.</small></div><div class="s">Submissions open</div></div>
-    <div class="row tbd"><div class="d" data-mt="3"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
-    <div class="row tbd"><div class="d" data-mt="4"></div><div class="m">Topic to be decided<small><span id="schedSub2"></span>.</small></div><div class="s">Not yet open</div></div>
-    <div class="row tbd"><div class="d" data-mt="5"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
-  </div>
+  <p class="note" id="schedExampleNote" style="display:none;margin-bottom:16px">Example schedule — showing what a typical run of meetings looks like. <button id="schedJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:600">Join</button> to see your own chapter's real dates.</p>
+  <div class="rows" id="schedRows"></div>
 </div></div>
 
 <!-- ---- VOTE ---- -->
@@ -712,7 +706,8 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="archive" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k">Every debate, every result</div><h2>Archive</h2>
     <p>The room votes before and after. The side that moves more of the room wins, even if the other side still holds more of it at the end.</p></div>
-  <div class="tog" role="tablist">
+  <p class="note" id="arcExampleNote" style="display:none;margin-bottom:16px">Example results — illustrating how a season of debates gets scored. <button id="arcJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:600">Join</button> to see your own chapter's real archive.</p>
+  <div class="tog" role="tablist" id="arcTog">
     <button role="tab" aria-selected="true" data-sc="mine" id="arcMineTab">This chapter</button>
     <button role="tab" aria-selected="false" data-sc="all">All chapters</button>
   </div>
@@ -1001,15 +996,41 @@ function fillDates(){
   set('heroWhen',fLong(MTG[0])+', '+fClock(MTG[0]));
   set('heroThesis','Selected speakers: submit your one-line thesis by '+fFull(addDays(MTG[0],-2))+
     ', '+fClock(MTG[0])+'. A speaker who does not confirm is replaced by the reserve.');
-  document.querySelectorAll('[data-mt]').forEach(e=>e.textContent=fShort(MTG[+e.dataset.mt]));
-  set('schedVote','Voting closes '+fDay(VOTE_CLOSE));
-  set('schedSub1','Submissions close '+fDay(SUB_CLOSE));
-  set('schedSub2','Submissions open '+fDay(addDays(MTG[2],1)));
   set('voteK','Closes '+fDay(VOTE_CLOSE));
   set('subK','Open until '+fDay(SUB_CLOSE));
   const chapterName=profile&&CHAPTERS.find(c=>c.id===activeChapterId());
   set('schedSeason',calcSeason()+(chapterName?' · '+chapterName.name:''));
+  renderSchedule();
 }
+
+/* ---------- schedule: real for members, illustrative example for guests ---------- */
+const EXAMPLE_SCHEDULE=[
+  {m:'Universal basic income would do more good than harm.',s:'Announced'},
+  {m:'The Electoral College should be abolished.',s:'Vote open',note:'Three topics shortlisted from member submissions. '+`Voting closes ${fDay(VOTE_CLOSE)}.`},
+  {m:'Topic to be decided',s:'Submissions open',note:'Submit your own topic for this meeting. '+`Submissions close ${fDay(SUB_CLOSE)}.`},
+  {m:'Social media platforms should be legally liable for what their algorithms recommend.',s:'Guest',note:'Guest: a candidate for city council.'},
+  {m:'Topic to be decided',s:'Not yet open'},
+  {m:'Standardized testing does more harm than good in college admissions.',s:'Two chapters',note:'Topic agreed by both chairs.'}
+];
+function renderSchedule(){
+  const on=S.auth;
+  const note=$('schedExampleNote'); if(note) note.style.display=on?'none':'';
+  const rows=on
+    ? CHAPTER_MEETINGS.slice(0,6).map((mt,k)=>({
+        d:fShort(new Date(mt.scheduled_at)),
+        m:(mt.motions&&mt.motions.claim)?mt.motions.claim:'Topic to be decided',
+        s:mt.voting_stage?('"'+mt.voting_stage+'" vote open'):''
+      }))
+    : EXAMPLE_SCHEDULE.map((e,k)=>({d:fShort(MTG[k]),m:e.m,s:e.s,note:e.note}));
+  const list=rows.length?rows:[{d:'',m:'No meetings scheduled yet',s:''}];
+  $('schedRows').innerHTML=list.map(r=>
+    '<div class="row'+(r.m==='Topic to be decided'||r.m==='No meetings scheduled yet'?' tbd':'')+'">'+
+    '<div class="d">'+r.d+'</div><div class="m">'+r.m+(r.note?'<small>'+r.note+'</small>':'')+'</div>'+
+    '<div class="s">'+(r.s||'')+'</div></div>'
+  ).join('');
+}
+$('schedJoinBtn').onclick=()=>openAuth('reg');
+$('arcJoinBtn').onclick=()=>openAuth('reg');
 
 /* ---------- auth modal ---------- */
 const authModal=$('authModal');
@@ -1166,6 +1187,8 @@ function applyAuth(){
     loadChapterSettings();   // read-only for everyone; only leaders can save changes (enforced by RLS)
     if(lead){loadReports();loadRoster();}
   }
+  renderSchedule();   // both functions branch on S.auth themselves — real data
+  renderArc('mine');  // for members, illustrative examples for signed-out guests
   const cur=document.querySelector('nav button[aria-selected="true"]');
   if(cur){
     const needAuth=cur.classList.contains('mbr')||cur.classList.contains('ldr');
@@ -1305,7 +1328,42 @@ $('repbtn').onclick=async function(){
 /* ---------- archive ---------- */
 /* `off` is days before the next debate, so the archive stays recent as time passes. */
 function bar(v,gh){return '<div class="tr'+(gh?' gh':'')+'"><div class="ff" style="width:'+v[0]+'%"></div><div class="fa" style="width:'+v[1]+'%"></div></div>'}
+function debateCard(claim,dateStr,chip,b,a,totalVotes,gloss){
+  const sh=a[0]-b[0], toFor=sh>0, amt=Math.abs(sh);
+  const minority=(toFor?a[0]:a[1])<50;
+  return '<div class="dv"><div class="dh"><div class="m">'+claim+'</div>'+
+    '<div style="display:flex;gap:10px;align-items:center">'+(chip?'<span class="chip">'+chip+'</span>':'')+
+    '<span class="dt">'+dateStr+' · '+totalVotes+' voting</span></div></div>'+
+    '<div class="bars"><div class="bl2">Before</div>'+bar(b,1)+'<div class="bn tn">'+b[0]+' / '+b[1]+'</div>'+
+    '<div class="bl2">After</div>'+bar(a,0)+'<div class="bn tn">'+a[0]+' / '+a[1]+'</div>'+
+    '<div class="dl"><span class="amt" style="color:'+(toFor?'var(--navy)':'var(--cl)')+'">'+
+    (toFor?'← '+amt+' points':amt+' points →')+'</span><span style="color:var(--faint)">to '+(toFor?'For':'Against')+'</span>'+
+    '<span class="won '+(toFor?'f':'a')+'">'+(toFor?'For':'Against')+' wins</span>'+
+    (minority?'<span class="won min">Minority win</span>':'')+'</div></div>'+
+    (gloss?'<div class="gloss">'+gloss+'</div>':'')+'</div>';
+}
+const EXAMPLE_DEBATES=[
+ {m:'Zoning reform would do more to fix housing costs than rent control.',off:14,n:31,b:[45,55],a:[64,36]},
+ {m:'The minimum voting age should be lowered to sixteen.',off:21,n:19,b:[30,70],a:[42,58]},
+ {m:'Legacy admissions should be abolished.',off:28,n:28,b:[71,29],a:[63,37],
+  g:'The opposition won despite finishing in the minority, 37 to 63, by shifting the room eight points from its opening position. The result is decided by the change in the vote, not the final majority.'},
+ {m:'Private schools do more harm than good.',off:35,n:24,b:[33,67],a:[46,54]},
+ {m:'Economic mobility matters more than economic equality.',off:42,n:24,b:[58,42],a:[44,56]},
+ {m:'Protest changes policy more than voting does.',off:56,n:22,b:[39,61],a:[35,65]},
+ {m:'The Senate filibuster should be abolished.',off:63,n:26,b:[52,48],a:[61,39]}
+];
 async function renderArc(scope){
+  const note=$('arcExampleNote'), tog=$('arcTog');
+  if(!S.auth){
+    if(note) note.style.display='';
+    if(tog) tog.style.display='none';
+    $('arclist').innerHTML=EXAMPLE_DEBATES.map(d=>
+      debateCard(d.m,fArc(addDays(MTG[0],-d.off)),null,d.b,d.a,d.n,d.g)
+    ).join('');
+    return;
+  }
+  if(note) note.style.display='none';
+  if(tog) tog.style.display='';
   const chapterId=(profile&&profile.chapter_id)||(CHAPTERS[0]&&CHAPTERS[0].id);
   let q=sb.from('meetings').select('id,scheduled_at,chapter_id,motions!meetings_motion_fk(claim),chapters(name)')
     .eq('status','completed').order('scheduled_at',{ascending:false});
@@ -1319,18 +1377,9 @@ async function renderArc(scope){
     const pct=(stage,side)=>{const tot=rows.filter(r=>r.stage===stage).reduce((s,r)=>s+r.votes,0);const v=rows.find(r=>r.stage===stage&&r.side===side);return tot?Math.round(100*(v?v.votes:0)/tot):0};
     const b=[pct('before','for'),pct('before','against')], a=[pct('after','for'),pct('after','against')];
     const totalVotes=rows.filter(r=>r.stage==='after').reduce((s,r)=>s+r.votes,0);
-    const sh=a[0]-b[0], toFor=sh>0, amt=Math.abs(sh);
-    const minority=(toFor?a[0]:a[1])<50;
     const claim=m.motions?m.motions.claim:'Untitled debate';
-    return '<div class="dv"><div class="dh"><div class="m">'+claim+'</div>'+
-      '<div style="display:flex;gap:10px;align-items:center">'+(scope==='all'&&m.chapters?'<span class="chip">'+m.chapters.name+'</span>':'')+
-      '<span class="dt">'+fArc(new Date(m.scheduled_at))+' · '+totalVotes+' voting</span></div></div>'+
-      '<div class="bars"><div class="bl2">Before</div>'+bar(b,1)+'<div class="bn tn">'+b[0]+' / '+b[1]+'</div>'+
-      '<div class="bl2">After</div>'+bar(a,0)+'<div class="bn tn">'+a[0]+' / '+a[1]+'</div>'+
-      '<div class="dl"><span class="amt" style="color:'+(toFor?'var(--navy)':'var(--cl)')+'">'+
-      (toFor?'← '+amt+' points':amt+' points →')+'</span><span style="color:var(--faint)">to '+(toFor?'For':'Against')+'</span>'+
-      '<span class="won '+(toFor?'f':'a')+'">'+(toFor?'For':'Against')+' wins</span>'+
-      (minority?'<span class="won min">Minority win</span>':'')+'</div></div></div>';
+    const chip=(scope==='all'&&m.chapters)?m.chapters.name:null;
+    return debateCard(claim,fArc(new Date(m.scheduled_at)),chip,b,a,totalVotes,null);
   }).join('');
 }
 document.querySelectorAll('.tog button').forEach(b=>b.onclick=()=>{
