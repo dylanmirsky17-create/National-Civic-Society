@@ -166,6 +166,10 @@ h3.sec.gap{margin-top:42px}
 .btn.gold:hover{background:var(--gold-dk);color:var(--cream)}
 .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .sealed{background:var(--band);border-left:3px solid var(--gold);padding:14px 18px;font-size:15px;color:var(--muted);margin-top:18px;font-style:italic}
+.examplebox{background:var(--gold-soft);border:1px solid var(--gold);padding:14px 18px;margin-bottom:18px}
+.examplebox .tag{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;color:var(--gold-dk);margin-bottom:5px}
+.examplebox p{font-size:14.5px;color:var(--ink)}
+.exchip{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;font-weight:700;color:var(--gold-dk);background:var(--gold-soft);border:1px solid var(--gold);padding:2px 7px}
 
 /* ---------- forms ---------- */
 .field{margin-bottom:18px}
@@ -676,7 +680,10 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="schedule" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k" id="schedSeason">Loading…</div><h2>Schedule</h2>
 </div>
-  <p class="note" id="schedExampleNote" style="display:none;margin-bottom:16px">Example schedule — showing what a typical run of meetings looks like. <button id="schedJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:600">Join</button> to see your own chapter's real dates.</p>
+  <div class="examplebox" id="schedExampleNote" style="display:none">
+    <div class="tag">⚠ Example — not real data</div>
+    <p>This is a sample schedule showing what a typical run of meetings looks like, not any chapter's actual dates. <button id="schedJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:700">Join</button> to see your own chapter's real schedule.</p>
+  </div>
   <div class="rows" id="schedRows"></div>
 </div></div>
 
@@ -706,7 +713,10 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="archive" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k">Every debate, every result</div><h2>Archive</h2>
     <p>The room votes before and after. The side that moves more of the room wins, even if the other side still holds more of it at the end.</p></div>
-  <p class="note" id="arcExampleNote" style="display:none;margin-bottom:16px">Example results — illustrating how a season of debates gets scored. <button id="arcJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:600">Join</button> to see your own chapter's real archive.</p>
+  <div class="examplebox" id="arcExampleNote" style="display:none">
+    <div class="tag">⚠ Example — not real data</div>
+    <p>These are made-up results, shown only to illustrate how a season of debates gets scored. <button id="arcJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:700">Join</button> to see your own chapter's real archive.</p>
+  </div>
   <div class="tog" role="tablist" id="arcTog">
     <button role="tab" aria-selected="true" data-sc="mine" id="arcMineTab">This chapter</button>
     <button role="tab" aria-selected="false" data-sc="all">All chapters</button>
@@ -1026,7 +1036,7 @@ function renderSchedule(){
   $('schedRows').innerHTML=list.map(r=>
     '<div class="row'+(r.m==='Topic to be decided'||r.m==='No meetings scheduled yet'?' tbd':'')+'">'+
     '<div class="d">'+r.d+'</div><div class="m">'+r.m+(r.note?'<small>'+r.note+'</small>':'')+'</div>'+
-    '<div class="s">'+(r.s||'')+'</div></div>'
+    '<div class="s">'+(on?(r.s||''):'<span class="exchip">Example</span>')+'</div></div>'
   ).join('');
 }
 $('schedJoinBtn').onclick=()=>openAuth('reg');
@@ -1328,11 +1338,12 @@ $('repbtn').onclick=async function(){
 /* ---------- archive ---------- */
 /* `off` is days before the next debate, so the archive stays recent as time passes. */
 function bar(v,gh){return '<div class="tr'+(gh?' gh':'')+'"><div class="ff" style="width:'+v[0]+'%"></div><div class="fa" style="width:'+v[1]+'%"></div></div>'}
-function debateCard(claim,dateStr,chip,b,a,totalVotes,gloss){
+function debateCard(claim,dateStr,chip,b,a,totalVotes,gloss,isExample){
   const sh=a[0]-b[0], toFor=sh>0, amt=Math.abs(sh);
   const minority=(toFor?a[0]:a[1])<50;
   return '<div class="dv"><div class="dh"><div class="m">'+claim+'</div>'+
-    '<div style="display:flex;gap:10px;align-items:center">'+(chip?'<span class="chip">'+chip+'</span>':'')+
+    '<div style="display:flex;gap:10px;align-items:center">'+
+    (isExample?'<span class="exchip">Example</span>':(chip?'<span class="chip">'+chip+'</span>':''))+
     '<span class="dt">'+dateStr+' · '+totalVotes+' voting</span></div></div>'+
     '<div class="bars"><div class="bl2">Before</div>'+bar(b,1)+'<div class="bn tn">'+b[0]+' / '+b[1]+'</div>'+
     '<div class="bl2">After</div>'+bar(a,0)+'<div class="bn tn">'+a[0]+' / '+a[1]+'</div>'+
@@ -1358,7 +1369,7 @@ async function renderArc(scope){
     if(note) note.style.display='';
     if(tog) tog.style.display='none';
     $('arclist').innerHTML=EXAMPLE_DEBATES.map(d=>
-      debateCard(d.m,fArc(addDays(MTG[0],-d.off)),null,d.b,d.a,d.n,d.g)
+      debateCard(d.m,fArc(addDays(MTG[0],-d.off)),null,d.b,d.a,d.n,d.g,true)
     ).join('');
     return;
   }
