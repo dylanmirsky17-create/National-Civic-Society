@@ -235,9 +235,43 @@ create policy "motions_leader_update" on motions for update
 -- vote row — nobody, including a chapter's own leaders, can read
 -- how any individual person voted. Aggregate counts are exposed
 -- separately below, through views that never carry a voter_id.
-create policy "shortlist_votes_own" on shortlist_votes for all
+-- one policy per command, deliberately not "for all": PostgreSQL
+-- requires a row to pass a SELECT policy before DELETE/UPDATE can
+-- target it, so a single combined policy is the only shape that
+-- keeps that requirement from silently swallowing other rules.
+create policy "shortlist_votes_own_select" on shortlist_votes for select
+  using (voter_id = auth.uid());
+create policy "shortlist_votes_own_insert" on shortlist_votes for insert
+  with check (voter_id = auth.uid());
+create policy "shortlist_votes_own_update" on shortlist_votes for update
   using (voter_id = auth.uid())
   with check (voter_id = auth.uid());
+create policy "shortlist_votes_own_delete" on shortlist_votes for delete
+  using (voter_id = auth.uid());
+
+-- a leader resetting someone else's vote can never be expressed as a
+-- plain DELETE policy (see note above: it would also require SELECT
+-- access to that person's individual vote, which defeats the point
+-- of a private ballot). reset_shortlist_votes() below is the
+-- narrow, audited exception instead.
+create or replace function reset_shortlist_votes(target_motion uuid) returns int
+language plpgsql security definer set search_path = public as $$
+declare
+  target_chapter uuid;
+  affected int;
+begin
+  select chapter_id into target_chapter from motions where id = target_motion;
+  if target_chapter is null then
+    raise exception 'Motion not found';
+  end if;
+  if not is_leader_of(target_chapter) then
+    raise exception 'Not authorized to reset votes for this motion';
+  end if;
+  delete from shortlist_votes where motion_id = target_motion;
+  get diagnostics affected = row_count;
+  return affected;
+end;
+$$;
 
 create policy "ballots_own_insert" on ballots for insert
   with check (voter_id = auth.uid());

@@ -458,6 +458,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <div id="reg" style="display:none">
       <div class="lf"><label for="n2">Full name</label><input id="n2" placeholder="First and last"></div>
       <div class="lf"><label for="e2">School email</label><input id="e2" type="email" placeholder="you@yourschool.org"></div>
+      <div class="lf"><label for="e2b">Confirm email</label><input id="e2b" type="email" placeholder="you@yourschool.org"></div>
       <div class="lf">
         <label for="s2">Your school</label>
         <select id="s2">
@@ -466,6 +467,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
         <div class="h">No chapter at your school yet? Choose the last option to start one.</div>
       </div>
       <div class="lf"><label for="p2">Password</label><input id="p2" type="password"></div>
+      <div class="lf"><label for="p2b">Confirm password</label><input id="p2b" type="password"></div>
       <div id="regErr" style="color:var(--hot);font-size:13px;margin:-4px 0 12px;display:none"></div>
       <button class="lbtn" id="doreg">Create account</button>
       <div class="lalt">Have an account? <button id="tosignin">Sign in</button></div>
@@ -878,6 +880,13 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <p>Settings here apply to your chapter only.</p></div>
 
   <div class="acard">
+    <div class="ahd"><span class="t">Topic voting</span><span class="n">Live counts for the current shortlist</span></div>
+    <div class="abody">
+      <div id="voteCountsList"><p class="note">Loading…</p></div>
+    </div>
+  </div>
+
+  <div class="acard">
     <div class="ahd"><span class="t">Meeting formats & run sheet</span><span class="n" id="tnote">Applies to the Chair console</span></div>
     <div class="abody">
       <div class="tog" role="tablist" id="formatTabs" style="flex-wrap:wrap"></div>
@@ -936,8 +945,10 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   <div class="acard">
     <div class="ahd"><span class="t">Voting &amp; submissions</span><span class="n">For the next meeting's topic</span></div>
     <div class="abody">
-      <div class="field"><label for="setVote">Shortlist voting closes</label><input id="setVote" type="datetime-local"></div>
-      <div class="field"><label for="setSub">Topic submissions close</label><input id="setSub" type="datetime-local"></div>
+      <div class="field"><label for="setVote">Shortlist voting closes</label><input id="setVote" type="datetime-local">
+        <div class="h">When members can no longer vote on the current shortlist of submitted topics.</div></div>
+      <div class="field"><label for="setSub">Topic submissions close</label><input id="setSub" type="datetime-local">
+        <div class="h">When members can no longer submit new topics for the following meeting.</div></div>
       <button class="btn" id="setVoteSave">Save</button>
     </div>
   </div>
@@ -1154,10 +1165,12 @@ $('dosignin').onclick=async function(){
 
 $('doreg').onclick=async function(){
   hideAuthErrs();
-  const full_name=$('n2').value.trim(), email=$('e2').value.trim();
-  const chapter_id=$('s2').value, password=$('p2').value;
+  const full_name=$('n2').value.trim(), email=$('e2').value.trim(), emailConfirm=$('e2b').value.trim();
+  const chapter_id=$('s2').value, password=$('p2').value, passwordConfirm=$('p2b').value;
   if(!full_name||!email||!password){showAuthErr('regErr','Fill in your name, email, and a password.');return}
+  if(email!==emailConfirm){showAuthErr('regErr','Those two emails don\'t match.');return}
   if(password.length<8){showAuthErr('regErr','Password needs to be at least 8 characters.');return}
+  if(password!==passwordConfirm){showAuthErr('regErr','Those two passwords don\'t match.');return}
   let signupChapterId=chapter_id, pendingSchool=null;
   if(chapter_id==='__req'){
     const school=prompt('Name of your school, so we can start a chapter there:');
@@ -1227,7 +1240,7 @@ function applyAuth(){
       $('chapterSwitchWrap').style.display='none';
     }
     loadChapterSettings();   // read-only for everyone; only leaders can save changes (enforced by RLS)
-    if(lead){loadReports();loadRoster();}
+    if(lead){loadReports();loadRoster();loadVoteCounts();}
   }
   renderSchedule();   // both functions branch on S.auth themselves — real data
   renderArc('mine');  // for members, illustrative examples for signed-out guests
@@ -1269,7 +1282,7 @@ function go(p){
   if(p==='account')loadAccountPage();
   if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name;refreshCurrentMeeting().then(renderChairBallot)}
   if(p==='home'&&profile)refreshCurrentMeeting().then(renderLiveBallot);
-  if(p==='admin'&&isLead){loadReports();loadRoster();}
+  if(p==='admin'&&isLead){loadReports();loadRoster();loadVoteCounts();}
   if(p==='requests'&&effectiveRole()==='national_admin')loadChapterRequests();
   window.scrollTo(0,0);
 }
@@ -1379,6 +1392,8 @@ function debateCard(claim,dateStr,chip,b,a,totalVotes,gloss,isExample){
     '<div style="display:flex;gap:10px;align-items:center">'+
     (isExample?'<span class="exchip">Example</span>':(chip?'<span class="chip">'+chip+'</span>':''))+
     '<span class="dt">'+dateStr+' · '+totalVotes+' voting</span></div></div>'+
+    '<div style="display:flex;gap:16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;margin-bottom:8px">'+
+    '<span style="color:var(--navy)">■ For</span><span style="color:var(--cl)">■ Against</span></div>'+
     '<div class="bars"><div class="bl2">Before</div>'+bar(b,1)+'<div class="bn tn">'+b[0]+' / '+b[1]+'</div>'+
     '<div class="bl2">After</div>'+bar(a,0)+'<div class="bn tn">'+a[0]+' / '+a[1]+'</div>'+
     '<div class="dl"><span class="amt" style="color:'+(toFor?'var(--navy)':'var(--cl)')+'">'+
@@ -1968,15 +1983,24 @@ async function loadChapterRequests(){
   const {data:reqs,error}=await sb.from('chapter_requests').select('*').eq('status','pending').order('created_at',{ascending:false});
   if(error){$('requestsList').innerHTML='<p class="note">Could not load requests.</p>';return}
   if(!reqs||!reqs.length){$('requestsList').innerHTML='<p class="note">No pending requests.</p>';return}
-  $('requestsList').innerHTML=reqs.map(r=>
-    '<div class="rep"><div class="rh"><span class="id">'+r.school_name+'</span><span class="tg new">Pending</span></div>'+
-    '<div class="bd">Requested by '+(r.requested_by_name||'someone')+(r.requested_by_email?' · '+r.requested_by_email:'')+'</div>'+
-    '<div class="mt">'+new Date(r.created_at).toLocaleDateString()+'</div>'+
+  const emails=[...new Set(reqs.map(r=>r.requested_by_email).filter(Boolean))];
+  let byEmail={};
+  if(emails.length){
+    const {data:profs}=await sb.from('profiles').select('email,chapter_id,chapters(name,is_placeholder)').in('email',emails);
+    (profs||[]).forEach(p=>{byEmail[p.email]=p});
+  }
+  $('requestsList').innerHTML=reqs.map(r=>{
+    const p=byEmail[r.requested_by_email];
+    const currentChapter=p&&p.chapters?p.chapters.name:null;
+    const stillWaiting=!p||(p.chapters&&p.chapters.is_placeholder);
+    return '<div class="rep"><div class="rh"><span class="id">Requested chapter: '+r.school_name+'</span><span class="tg new">Pending</span></div>'+
+    '<div class="bd">By '+(r.requested_by_name||'someone')+(r.requested_by_email?' · '+r.requested_by_email:'')+'</div>'+
+    '<div class="mt">Currently in: '+(currentChapter||'no account found')+(stillWaiting?'':' — already placed elsewhere, may be stale')+' · '+new Date(r.created_at).toLocaleDateString()+'</div>'+
     '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
     '<button class="btn" data-approve="'+r.id+'">Approve &amp; create chapter</button>'+
     '<button class="btn gh" data-reject="'+r.id+'">Dismiss</button>'+
-    '</div></div>'
-  ).join('');
+    '</div></div>';
+  }).join('');
   document.querySelectorAll('#requestsList [data-approve]').forEach(b=>b.onclick=()=>approveChapterRequest(reqs.find(r=>r.id===b.dataset.approve)));
   document.querySelectorAll('#requestsList [data-reject]').forEach(b=>b.onclick=()=>rejectChapterRequest(b.dataset.reject));
 }
@@ -2009,6 +2033,30 @@ async function loadRoster(){
   $('rosterList').innerHTML=head+(members||[]).map(m=>
     '<div class="mem"><span>'+m.full_name+'</span><span class="rl">'+(m.office||(m.role!=='member'?'Leader':''))+
     '</span><span class="num">'+m.floor_log_count+'</span><span></span></div>').join('');
+}
+
+/* ---------- admin: shortlist vote counts ---------- */
+async function loadVoteCounts(){
+  const chId=activeChapterId();
+  if(!chId)return;
+  const {data:motions,error}=await sb.from('motions').select('id,claim,profiles(full_name)')
+    .eq('chapter_id',chId).eq('shortlisted',false).order('created_at',{ascending:false});
+  if(error){$('voteCountsList').innerHTML='<p class="note">Could not load votes.</p>';return}
+  if(!motions||!motions.length){$('voteCountsList').innerHTML='<p class="note">No open topics right now.</p>';return}
+  const ids=motions.map(m=>m.id);
+  const {data:counts}=await sb.from('motion_vote_counts').select('*').in('motion_id',ids);
+  const countFor=id=>{const c=(counts||[]).find(x=>x.motion_id===id);return c?c.votes:0};
+  $('voteCountsList').innerHTML=motions.map(m=>
+    '<div class="row"><div class="d tn">'+countFor(m.id)+' vote'+(countFor(m.id)===1?'':'s')+'</div>'+
+    '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
+    '<div class="s"><button class="btn gh" data-resetvote="'+m.id+'" style="font-size:9px;padding:6px 10px">Reset votes</button></div></div>'
+  ).join('');
+  document.querySelectorAll('#voteCountsList [data-resetvote]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Clear all votes on this topic? This can\'t be undone.'))return;
+    const {error}=await sb.rpc('reset_shortlist_votes',{target_motion:b.dataset.resetvote});
+    if(error)alert(error.message);
+    loadVoteCounts();
+  });
 }
 
 /* ---------- admin: reports (real, chapter-scoped, and genuinely anonymous —
