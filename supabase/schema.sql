@@ -26,6 +26,7 @@ create table chapters (
   vote_close timestamptz,          -- shortlist-vote deadline for the next topic
   sub_close timestamptz,           -- topic-submission deadline for the meeting after that
   run_sheet jsonb,                 -- customized meeting formats + which one is active; null = built-in defaults
+  is_placeholder boolean not null default false,  -- true only for the shared "Pending Chapter" holding pen
   lat double precision,
   lng double precision,
   created_at timestamptz not null default now()
@@ -39,6 +40,7 @@ create table profiles (
   role user_role not null default 'member',
   office text,                     -- e.g. 'President', 'Logger'
   email text,                      -- denormalized from auth.users, used only to notify leaders of new reports
+  pending_school_name text,        -- set only while chapter_id points at the placeholder chapter
   floor_log_count int not null default 0,
   member_since timestamptz not null default now()
 );
@@ -154,13 +156,14 @@ $$;
 create or replace function handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (id, chapter_id, full_name, role, email)
+  insert into public.profiles (id, chapter_id, full_name, role, email, pending_school_name)
   values (
     new.id,
     nullif(new.raw_user_meta_data->>'chapter_id', '')::uuid,
     coalesce(new.raw_user_meta_data->>'full_name', 'New member'),
     'member',
-    new.email
+    new.email,
+    nullif(new.raw_user_meta_data->>'pending_school_name', '')
   );
   return new;
 end;
@@ -270,6 +273,8 @@ create policy "chapter_requests_public_insert" on chapter_requests for insert
   with check (true);
 create policy "chapter_requests_admin_read" on chapter_requests for select
   using (my_role() = 'national_admin');
+create policy "chapter_requests_admin_update" on chapter_requests for update
+  using (my_role() = 'national_admin');
 
 -- ------------------------------------------------------------
 -- aggregate views — expose vote *counts* without ever exposing
@@ -309,6 +314,10 @@ grant select on public_stats to authenticated, anon;
 
 insert into chapters (name, location, status, room, lat, lng)
 values ('Seattle Academy', 'Capitol Hill, Seattle', 'founding', 'Room US 211', 47.61, -122.33);
+
+-- the shared holding pen for anyone requesting a chapter that doesn't exist yet
+insert into chapters (name, location, status, is_placeholder)
+values ('Pending Chapter', 'Awaiting approval', 'pending', true);
 
 -- After running this file: sign up through the site once with your
 -- own account, then in Table Editor -> profiles, change your row's

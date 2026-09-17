@@ -531,12 +531,20 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
       <button role="tab" aria-selected="false" data-p="chair" class="lead ldr">Chair</button>
       <button role="tab" aria-selected="false" data-p="admin" class="lead ldr">Admin</button>
       <button role="tab" aria-selected="false" data-p="settings" class="lead ldr">Settings</button>
+      <button role="tab" aria-selected="false" data-p="requests" class="lead natadmin">Requests</button>
     </nav>
   </div>
 </div>
 
 <!-- ---- HOME ---- -->
 <div class="page on" id="home" role="tabpanel">
+
+  <div class="wrap" id="pendingNote" style="display:none;padding-top:24px">
+    <div class="examplebox">
+      <div class="tag">⚠ Chapter pending approval</div>
+      <p>Your account is set up, but your school doesn't have an active chapter yet. You're seeing example content below until a national admin approves it — we'll email you once that happens.</p>
+    </div>
+  </div>
 
   <!-- Public: the grand entrance -->
   <div id="homeGuest">
@@ -945,6 +953,13 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   </div>
 </div></div>
 
+<!-- ---- REQUESTS (national admin only) ---- -->
+<div class="page" id="requests" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k">National admin only</div><h2>Chapter requests</h2>
+    <p>Approving a request creates the chapter and automatically moves anyone waiting on it out of the Pending Chapter.</p></div>
+  <div id="requestsList"><p class="note">Loading…</p></div>
+</div></div>
+
 <footer><div class="fw">
   <span>N.C.S.</span>
   <span><button id="footrep">Report something anonymously</button></span>
@@ -966,6 +981,7 @@ const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANO
 const S={auth:false,role:'member'};
 let profile=null, session=null;
 let CHAPTERS=[];               // loaded from the `chapters` table
+let PENDING_CHAPTER_ID=null;   // the shared holding-pen chapter for unapproved requests
 const SET={room:'Room US 211',lenMin:40};   // mirrors the signed-in leader's chapter row
 const $=id=>document.getElementById(id);
 
@@ -1023,7 +1039,7 @@ const EXAMPLE_SCHEDULE=[
   {m:'Standardized testing does more harm than good in college admissions.',s:'Two chapters',note:'Topic agreed by both chairs.'}
 ];
 function renderSchedule(){
-  const on=S.auth;
+  const on=S.auth&&!isPendingChapter();
   const note=$('schedExampleNote'); if(note) note.style.display=on?'none':'';
   const rows=on
     ? CHAPTER_MEETINGS.slice(0,6).map((mt,k)=>({
@@ -1083,19 +1099,23 @@ function showAuthErr(id,msg){const e=$(id);e.textContent=msg;e.style.display='bl
 function hideAuthErrs(){['signinErr','regErr'].forEach(id=>{const e=$(id);e.style.display='none'})}
 
 async function loadChapters(){
-  const {data,error}=await sb.from('chapters').select('id,name,location,status,room,lat,lng').order('name');
+  const {data,error}=await sb.from('chapters').select('id,name,location,status,room,lat,lng,is_placeholder').order('name');
   if(error){console.error(error);return}
   CHAPTERS=data||[];
+  const pending=CHAPTERS.find(c=>c.is_placeholder);
+  PENDING_CHAPTER_ID=pending?pending.id:null;
+  const visible=CHAPTERS.filter(c=>!c.is_placeholder);
   const sel=$('s2');
-  sel.innerHTML=CHAPTERS.map(c=>'<option value="'+c.id+'">'+c.name+(c.location?' — '+c.location:'')+'</option>').join('')
+  sel.innerHTML=visible.map(c=>'<option value="'+c.id+'">'+c.name+(c.location?' — '+c.location:'')+'</option>').join('')
     +'<option value="__req">Request a chapter (my school isn\'t listed)</option>';
-  const mt=$('arcMineTab'); if(mt&&CHAPTERS[0]) mt.textContent=CHAPTERS[0].name;
+  const mt=$('arcMineTab'); if(mt&&visible[0]) mt.textContent=visible[0].name;
   renderArc('mine');
-  CH=CHAPTERS;
+  CH=visible;
   $('chlist').innerHTML=CH.length?CH.map(chcard).join(''):'<p class="note">No chapters yet.</p>';
   document.querySelectorAll('.ch').forEach(e=>e.onclick=()=>sel(e.dataset.ch));
   try{ if(window.d3&&window.topojson) renderMap(); else mapFail() }catch(e){ mapFail() }
 }
+function isPendingChapter(){ return !!(profile&&PENDING_CHAPTER_ID&&profile.chapter_id===PENDING_CHAPTER_ID); }
 
 async function loadStats(){
   const {data,error}=await sb.from('public_stats').select('*').single();
@@ -1138,19 +1158,27 @@ $('doreg').onclick=async function(){
   const chapter_id=$('s2').value, password=$('p2').value;
   if(!full_name||!email||!password){showAuthErr('regErr','Fill in your name, email, and a password.');return}
   if(password.length<8){showAuthErr('regErr','Password needs to be at least 8 characters.');return}
+  let signupChapterId=chapter_id, pendingSchool=null;
   if(chapter_id==='__req'){
     const school=prompt('Name of your school, so we can start a chapter there:');
-    if(school) await sb.from('chapter_requests').insert({school_name:school,requested_by_name:full_name,requested_by_email:email});
-    showAuthErr('regErr','Chapter request sent. You can still create an account below once a chapter exists — for now, ask N.C.S. to follow up.');
-    return;
+    if(!school){showAuthErr('regErr','Enter your school name to continue, or pick a listed chapter instead.');return}
+    pendingSchool=school.trim();
+    if(!PENDING_CHAPTER_ID){showAuthErr('regErr','Something went wrong setting up your account — try again in a moment.');return}
+    signupChapterId=PENDING_CHAPTER_ID;
   }
   this.textContent='Creating…';
-  const {error}=await sb.auth.signUp({email,password,options:{data:{full_name,chapter_id}}});
+  const {error}=await sb.auth.signUp({email,password,options:{data:{full_name,chapter_id:signupChapterId,pending_school_name:pendingSchool||''}}});
   this.textContent='Create account';
   if(error){showAuthErr('regErr',error.message);return}
+  if(pendingSchool) await sb.from('chapter_requests').insert({school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email});
   const {data:{session:s}}=await sb.auth.getSession();
-  if(s){ await refreshSession(); closeAuth(); go('home'); }
-  else { showAuthErr('regErr','Account created — check your email to confirm it, then sign in.'); showForm('signin'); }
+  if(s){
+    await refreshSession(); closeAuth(); go('home');
+    if(pendingSchool) setTimeout(()=>alert('Your account is set up. We\'ll email you once '+pendingSchool+' is approved as a chapter — until then you\'ll see example content instead of a real schedule.'),300);
+  } else {
+    showAuthErr('regErr','Account created — check your email to confirm it, then sign in.');
+    showForm('signin');
+  }
 };
 
 /* ---------- "view as" — a national admin can preview the site as a
@@ -1173,14 +1201,17 @@ function activeChapterId(){
 
 function applyAuth(){
   const on=S.auth, role=effectiveRole(), lead=on&&(role==='leader'||role==='national_admin');
+  const pending=on&&isPendingChapter();
   $('guestbar').style.display=on?'none':'';
   $('userbar').style.display=on?'':'none';
   document.querySelectorAll('nav .mbr').forEach(b=>b.style.display=on?'':'none');
   document.querySelectorAll('nav .ldr').forEach(b=>b.style.display=lead?'':'none');
+  document.querySelectorAll('nav .natadmin').forEach(b=>b.style.display=(role==='national_admin')?'':'none');
   const chapterName=profile&&CHAPTERS.find(c=>c.id===activeChapterId());
-  $('chname').textContent=on?(chapterName?chapterName.name:'Your chapter'):'United States';
-  $('homeGuest').style.display=on?'none':'';
-  $('homeMember').style.display=on?'':'none';
+  $('chname').textContent=on?(pending?'Pending approval':(chapterName?chapterName.name:'Your chapter')):'United States';
+  $('homeGuest').style.display=(on&&!pending)?'none':'';
+  $('homeMember').style.display=(on&&!pending)?'':'none';
+  const pn=$('pendingNote'); if(pn) pn.style.display=pending?'':'none';
   if(on){
     $('uname').textContent=profile.full_name;
     $('urole').textContent=profile.office||(lead?'Leader':'Member');
@@ -1189,7 +1220,8 @@ function applyAuth(){
     if(profile.role==='national_admin'){
       vw.style.display=''; $('viewAsSel').value=VIEW_AS||'national_admin';
       const csw=$('chapterSwitchWrap'); csw.style.display='';
-      $('chapterSwitchSel').innerHTML=CHAPTERS.map(c=>'<option value="'+c.id+'"'+(c.id===activeChapterId()?' selected':'')+'>'+c.name+'</option>').join('');
+      $('chapterSwitchSel').innerHTML=CHAPTERS.filter(c=>!c.is_placeholder).map(c=>'<option value="'+c.id+'"'+(c.id===activeChapterId()?' selected':'')+'>'+c.name+'</option>').join('');
+      loadChapterRequests();
     } else {
       vw.style.display='none';
       $('chapterSwitchWrap').style.display='none';
@@ -1224,6 +1256,7 @@ function go(p){
   if(btn){
     if(btn.classList.contains('ldr')&&!isLead){openAuth('signin');return}
     if(btn.classList.contains('mbr')&&!S.auth){openAuth('signin');return}
+    if(btn.classList.contains('natadmin')&&effectiveRole()!=='national_admin'){openAuth('signin');return}
   }
   document.querySelectorAll('nav button').forEach(x=>{
     const sel=x.dataset.p===p;
@@ -1237,6 +1270,7 @@ function go(p){
   if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name;refreshCurrentMeeting().then(renderChairBallot)}
   if(p==='home'&&profile)refreshCurrentMeeting().then(renderLiveBallot);
   if(p==='admin'&&isLead){loadReports();loadRoster();}
+  if(p==='requests'&&effectiveRole()==='national_admin')loadChapterRequests();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('nav button').forEach(b=>{
@@ -1365,7 +1399,7 @@ const EXAMPLE_DEBATES=[
 ];
 async function renderArc(scope){
   const note=$('arcExampleNote'), tog=$('arcTog');
-  if(!S.auth){
+  if(!S.auth||isPendingChapter()){
     if(note) note.style.display='';
     if(tog) tog.style.display='none';
     $('arclist').innerHTML=EXAMPLE_DEBATES.map(d=>
@@ -1929,6 +1963,42 @@ $('acSave').onclick=async function(){
 };
 
 /* ---------- admin: roster (real chapter members, not fabricated ones) ---------- */
+/* ---------- national admin: chapter requests ---------- */
+async function loadChapterRequests(){
+  const {data:reqs,error}=await sb.from('chapter_requests').select('*').eq('status','pending').order('created_at',{ascending:false});
+  if(error){$('requestsList').innerHTML='<p class="note">Could not load requests.</p>';return}
+  if(!reqs||!reqs.length){$('requestsList').innerHTML='<p class="note">No pending requests.</p>';return}
+  $('requestsList').innerHTML=reqs.map(r=>
+    '<div class="rep"><div class="rh"><span class="id">'+r.school_name+'</span><span class="tg new">Pending</span></div>'+
+    '<div class="bd">Requested by '+(r.requested_by_name||'someone')+(r.requested_by_email?' · '+r.requested_by_email:'')+'</div>'+
+    '<div class="mt">'+new Date(r.created_at).toLocaleDateString()+'</div>'+
+    '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
+    '<button class="btn" data-approve="'+r.id+'">Approve &amp; create chapter</button>'+
+    '<button class="btn gh" data-reject="'+r.id+'">Dismiss</button>'+
+    '</div></div>'
+  ).join('');
+  document.querySelectorAll('#requestsList [data-approve]').forEach(b=>b.onclick=()=>approveChapterRequest(reqs.find(r=>r.id===b.dataset.approve)));
+  document.querySelectorAll('#requestsList [data-reject]').forEach(b=>b.onclick=()=>rejectChapterRequest(b.dataset.reject));
+}
+async function approveChapterRequest(req){
+  if(!req)return;
+  const location=prompt('Location for "'+req.school_name+'" (city, state) — optional:','')||null;
+  if(!confirm('Create "'+req.school_name+'" as a new chapter and move anyone waiting on it in?'))return;
+  const {data:newChapter,error}=await sb.from('chapters').insert({name:req.school_name,location,status:'active'}).select().single();
+  if(error){alert(error.message);return}
+  const {error:moveErr}=await sb.from('profiles').update({chapter_id:newChapter.id,pending_school_name:null})
+    .eq('chapter_id',PENDING_CHAPTER_ID).eq('pending_school_name',req.school_name);
+  if(moveErr) console.error(moveErr);
+  await sb.from('chapter_requests').update({status:'approved'}).eq('id',req.id);
+  await loadChapters();
+  loadChapterRequests();
+}
+async function rejectChapterRequest(id){
+  if(!confirm('Dismiss this request? (Anyone who signed up for it stays in the Pending Chapter.)'))return;
+  await sb.from('chapter_requests').update({status:'rejected'}).eq('id',id);
+  loadChapterRequests();
+}
+
 async function loadRoster(){
   if(!profile)return;
   const {data:members,error}=await sb.from('profiles').select('full_name,office,role,floor_log_count')
