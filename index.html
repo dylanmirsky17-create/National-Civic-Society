@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The National Civic Society — a debating society for American high schools</title>
+<meta name="description" content="The National Civic Society (N.C.S.) brings free speech, open argument, and critical thinking to American high schools. Student-led chapters debate a contested motion at every meeting, and the room votes before and after.">
+<meta name="theme-color" content="#16243F">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2316243F'/%3E%3Cpath d='M50 22 l6 13 14 1.6 -10.6 9.6 3 14.4 -12.4-7.4 -12.4 7.4 3-14.4 -10.6-9.6 14-1.6z' fill='%23D4AF37'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The National Civic Society">
+<meta property="og:description" content="A debating society for American high schools. The room votes before and after, and the side that changes more minds wins.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#16243F; --navy-2:#243758; --navy-3:#0E182B; --navy-pale:#E8EAF0; --navy-mid:#8895AE;
+  --gold:#D4AF37; --gold-dk:#8A6E1E; --gold-soft:#EFE3C0;
+  --cream:#F4EFE3; --paper:#FFFFFF; --band:#F6F4ED;
+  --ink:#1A1C22; --muted:#5C6070; --faint:#8B8F9C; --rule:#DFDDD3;
+  --cl:#8E2F3C; --cl-pale:#F4E7E9; --cl-mid:#C69AA1; --hot:#E4657A;
+  --d:'Cormorant Garamond',serif; --b:'EB Garamond',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--b);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:0 28px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+.tn{font-variant-numeric:tabular-nums}
+.sc{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600}
+
+/* ---------- logo mark ---------- */
+.mark{width:34px;height:34px;flex:0 0 34px}
+.mark.lg{width:74px;height:74px;flex:0 0 74px}
+
+/* ---------- auth card (shared by the modal) ---------- */
+.lframe{position:relative;width:100%;max-width:464px;padding:46px 40px 40px;border:1px solid rgba(212,175,55,.17)}
+.lframe:before{content:"";position:absolute;inset:5px;border:1px solid rgba(212,175,55,.09);pointer-events:none}
+.cn{position:absolute;width:14px;height:14px;pointer-events:none}
+.cn:before,.cn:after{content:"";position:absolute;background:rgba(212,175,55,.55)}
+.cn:before{width:14px;height:1px} .cn:after{width:1px;height:14px}
+.cn.nw{top:-1px;left:-1px} .cn.nw:before{top:0;left:0} .cn.nw:after{top:0;left:0}
+.cn.ne{top:-1px;right:-1px} .cn.ne:before{top:0;right:0} .cn.ne:after{top:0;right:0}
+.cn.sw{bottom:-1px;left:-1px} .cn.sw:before{bottom:0;left:0} .cn.sw:after{bottom:0;left:0}
+.cn.se{bottom:-1px;right:-1px} .cn.se:before{bottom:0;right:0} .cn.se:after{bottom:0;right:0}
+.lbox{width:100%;text-align:center}
+.lbox .mark{margin:0 auto 22px}
+.lbox h1{font-family:var(--d);font-weight:600;font-size:35px;letter-spacing:0.13em;text-transform:uppercase;line-height:1.04}
+.lbox .tag{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-top:12px}
+.lrule{display:flex;align-items:center;gap:11px;margin:26px 0}
+.lrule:before,.lrule:after{content:"";flex:1;height:1px;background:rgba(212,175,55,.2)}
+.lrule i{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);opacity:.75;flex:0 0 4px}
+.lf{text-align:left;margin-bottom:14px}
+.lf label{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--navy-mid);margin-bottom:6px;font-weight:600}
+.lf input,.lf select{width:100%;background:var(--navy-3);border:1px solid var(--navy-2);color:var(--cream);padding:11px 12px}
+.lf input:focus,.lf select:focus{outline:none;border-color:var(--gold)}
+.lf .h{font-size:13px;color:var(--navy-mid);margin-top:5px;font-style:italic}
+.lbtn{width:100%;background:var(--gold);color:var(--navy);padding:12px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-top:8px}
+.lbtn:hover{background:var(--gold-soft)}
+.lalt{margin-top:18px;font-size:14px;color:var(--navy-mid)}
+.lalt button{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- app shell ---------- */
+.bar{background:var(--navy);color:var(--cream);position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(14,24,43,.18)}
+.brow{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 0;flex-wrap:wrap}
+.bl{display:flex;align-items:center;gap:13px}
+.bl .nm{font-family:var(--d);font-weight:600;font-size:20px;letter-spacing:0.1em;text-transform:uppercase;line-height:1.1}
+.bl .nm small{display:block;font-family:var(--b);font-weight:400;font-size:10px;letter-spacing:0.15em;color:var(--gold);margin-top:4px}
+.br{text-align:right;font-size:12px;color:var(--navy-mid);line-height:1.6}
+.br b{color:var(--cream);font-weight:500}
+.br button{font-size:11px;color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+nav{display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--navy-2)}
+nav button{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:12px 0;margin-right:22px;color:var(--navy-mid);border-bottom:2px solid transparent;margin-bottom:-1px}
+nav button:hover{color:var(--cream)}
+nav button[aria-selected="true"]{color:var(--cream);border-bottom-color:var(--gold)}
+nav button.lead{color:var(--gold)}
+nav button.lead:before{content:"◆ ";font-size:7px;vertical-align:2px}
+nav button:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+
+.page{display:none;padding:38px 0 90px}
+.page.on{display:block}
+.ph{margin-bottom:32px}
+.ph .k{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-dk);font-weight:600;margin-bottom:8px}
+.ph h2{font-family:var(--d);font-weight:600;font-size:34px;line-height:1.15;color:var(--navy)}
+.ph p{font-size:16.5px;color:var(--muted);max-width:64ch;margin-top:11px;line-height:1.55}
+h3.sec{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:9px;margin:0 0 20px}
+.note{font-size:15.5px;color:var(--muted);max-width:66ch}
+.gap{margin-top:42px}
+h3.sec.gap{margin-top:42px}
+
+/* ---------- hero ---------- */
+.hero{background:var(--navy);color:var(--cream);padding:42px 34px 34px;margin-bottom:30px;position:relative}
+.hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold)}
+.hero .k{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:16px}
+.hero .mo{font-family:var(--d);font-weight:600;font-size:38px;line-height:1.24;max-width:19ch;margin-bottom:24px}
+.hrow{display:flex;flex-wrap:wrap;border-top:1px solid var(--navy-2);padding-top:18px}
+.hi{padding-right:28px;margin-right:28px;border-right:1px solid var(--navy-2)}
+.hi:last-child{border:none;padding:0;margin:0}
+.hi .l{font-size:9.5px;letter-spacing:0.15em;text-transform:uppercase;color:var(--navy-mid);margin-bottom:5px}
+.hi .v{font-family:var(--d);font-size:19px;font-weight:600}
+.hi .v.g{color:var(--gold)}
+
+.sides{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);margin-bottom:14px}
+.side{padding:18px}
+.side.f{border-right:1px solid var(--rule)}
+.side .hd{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;font-weight:600;margin-bottom:12px}
+.side.f .hd{color:var(--navy)} .side.a .hd{color:var(--cl)}
+.spk{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:16.5px}
+.spk:last-child{border:none}
+.spk .lg{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.spk.held{color:var(--faint);font-style:italic}
+.strip{border-left:3px solid var(--gold);background:var(--band);padding:15px 18px;display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.strip .l{font-size:16px;max-width:60ch}
+.strip .r{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;font-weight:600}
+
+/* ---------- generic rows ---------- */
+.rows{border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:100px 1fr auto;gap:16px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--rule)}
+.row .d{font-size:11px;letter-spacing:0.11em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.row .m{font-family:var(--d);font-size:19px;line-height:1.35;font-weight:600}
+.row .m small{display:block;font-family:var(--b);font-weight:400;font-size:14.5px;color:var(--muted);margin-top:3px}
+.row .s{font-size:9.5px;letter-spacing:0.13em;text-transform:uppercase;color:var(--gold-dk);white-space:nowrap;font-weight:600}
+.row.tbd .m{color:var(--faint);font-style:italic}
+
+/* ---------- toggle ---------- */
+.tog{display:inline-flex;border:1px solid var(--rule);margin-bottom:20px}
+.tog button{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:9px 18px;color:var(--muted)}
+.tog button[aria-selected="true"]{background:var(--navy);color:var(--cream)}
+
+/* ---------- archive ---------- */
+.legend{display:flex;gap:20px;margin-bottom:20px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:6px}
+.dv{padding:24px 0;border-bottom:1px solid var(--rule)}
+.dv:first-of-type{border-top:1px solid var(--rule)}
+.dh{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.dh .m{font-family:var(--d);font-weight:600;font-size:21px;max-width:44ch;line-height:1.3;color:var(--navy)}
+.dh .dt{font-size:11px;letter-spacing:0.09em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.dh .chip{font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dk);border:1px solid var(--rule);padding:2px 7px;font-weight:600}
+.bars{display:grid;grid-template-columns:52px 1fr 74px;gap:8px 12px;align-items:center}
+.bl2{font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.tr{height:15px;display:flex;background:var(--band)}
+.ff{background:var(--navy)} .fa{background:var(--cl)}
+.tr.gh .ff{background:var(--navy-mid)} .tr.gh .fa{background:var(--cl-mid)}
+.bn{font-size:13px;text-align:right;color:var(--muted)}
+.dl{grid-column:2/-1;display:flex;align-items:center;gap:10px;font-size:13px;padding-top:2px;flex-wrap:wrap}
+.dl .amt{font-weight:600;letter-spacing:0.02em}
+.won{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;padding:3px 8px}
+.won.f{color:var(--navy);background:var(--navy-pale)} .won.a{color:var(--cl);background:var(--cl-pale)}
+.won.min{color:var(--gold-dk);background:var(--gold-soft)}
+.gloss{margin-top:12px;font-size:15px;color:var(--muted);border-left:3px solid var(--gold);padding-left:13px;max-width:68ch;font-style:italic}
+
+/* ---------- vote / cards ---------- */
+.opt{border:1px solid var(--rule);padding:18px;margin-bottom:10px;display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}
+.opt:hover{border-color:var(--navy)}
+.opt.picked{border-color:var(--navy);background:var(--navy-pale)}
+.opt .b{flex:1;min-width:240px}
+.opt .by{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;font-weight:600}
+.opt .m{font-family:var(--d);font-weight:600;font-size:20px;line-height:1.3;margin-bottom:5px;color:var(--navy)}
+.opt .r{font-size:15.5px;color:var(--muted);max-width:62ch}
+.btn{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:10px 20px;border:1px solid var(--navy);color:var(--navy);white-space:nowrap}
+.btn:hover{background:var(--navy);color:var(--cream)}
+.btn.on{background:var(--navy);color:var(--cream)}
+.btn.gh{border-color:var(--rule);color:var(--faint)}
+.btn.gold{border-color:var(--gold-dk);color:var(--gold-dk)}
+.btn.gold:hover{background:var(--gold-dk);color:var(--cream)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.sealed{background:var(--band);border-left:3px solid var(--gold);padding:14px 18px;font-size:15px;color:var(--muted);margin-top:18px;font-style:italic}
+
+/* ---------- forms ---------- */
+.field{margin-bottom:18px}
+.field label{display:block;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;color:var(--muted);margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--rule);background:#FCFBF7;padding:11px 12px;line-height:1.5}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--navy)}
+.field .h{font-size:14px;color:var(--faint);margin-top:5px;font-style:italic}
+.quota{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.ladder{border:1px solid var(--rule);padding:16px;margin-bottom:24px}
+.lr{display:grid;grid-template-columns:82px 1fr;gap:14px;padding:5px 0;align-items:baseline}
+.lr .t{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;padding-top:5px}
+.lr .t.no{color:var(--faint)} .lr .t.yes{color:var(--navy)}
+.lr .x{font-family:var(--d);font-size:19px;font-weight:600}
+.lr .x.dim{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--cl-mid);font-weight:500}
+
+/* ---------- rules ---------- */
+.rule-row{display:grid;grid-template-columns:34px 1fr;border-bottom:1px solid var(--rule);padding:13px 0}
+.rk{font-size:12px;color:var(--gold-dk);font-weight:600;padding-top:2px}
+.rt{font-size:17px;font-weight:600}
+.rw{font-size:15px;color:var(--faint);margin-top:2px;max-width:66ch}
+.gavel{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:16px}
+.gv{background:var(--band);padding:18px 16px}
+.gv .st{font-family:var(--d);font-size:30px;font-weight:700;color:var(--cl);letter-spacing:-2px;line-height:1}
+.gv .wt{font-family:var(--d);font-weight:600;font-size:19px;margin:8px 0 3px}
+.gv .sm{font-size:15px;color:var(--muted)}
+
+/* ---------- map / chapters ---------- */
+.mapwrap{border:1px solid var(--rule);background:var(--band);padding:20px;margin-bottom:22px}
+.mp{width:100%;height:auto;display:block}
+.maperr{font-size:15px;color:var(--faint);font-style:italic;text-align:center;padding:30px 10px}
+.st-out{fill:#EDEAE0;stroke:var(--rule);stroke-width:1.5}
+.dot{cursor:pointer}
+.dot circle.c{fill:var(--navy);stroke:var(--paper);stroke-width:2}
+.dot.pend circle.c{fill:var(--paper);stroke:var(--navy-mid);stroke-width:2}
+.dot.inq circle.c{fill:var(--paper);stroke:var(--rule);stroke-width:2;stroke-dasharray:2 2}
+.dot.founding circle.c{fill:var(--gold);stroke:var(--navy);stroke-width:2}
+.dot:hover circle.c{stroke:var(--gold);stroke-width:3}
+.dot text{font-family:var(--b);font-size:13px;fill:var(--ink);letter-spacing:0.03em;pointer-events:none}
+.dot.founding text{font-weight:600}
+.mlg{display:flex;gap:18px;margin-top:14px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+.mlg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.chs{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.ch{background:var(--paper);padding:16px;cursor:pointer}
+.ch:hover{background:var(--band)}
+.ch.sel{background:var(--navy-pale)}
+.ch .n{font-family:var(--d);font-weight:600;font-size:19px;color:var(--navy)}
+.ch .l{font-size:13px;color:var(--faint);margin-top:2px}
+.ch .st{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;margin-top:8px;display:inline-block;padding:2px 7px}
+.ch .st.a{background:var(--navy-pale);color:var(--navy)}
+.ch .st.p{background:var(--band);color:var(--muted)}
+.ch .st.i{background:var(--band);color:var(--faint)}
+.ch .st.f{background:var(--gold-soft);color:var(--gold-dk)}
+
+/* ---------- roster ---------- */
+.rst{border-top:1px solid var(--rule)}
+.mem{display:grid;grid-template-columns:1fr 90px 70px 80px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule);font-size:16px}
+.mem .rl{font-size:9.5px;letter-spacing:0.11em;text-transform:uppercase;color:var(--gold-dk);font-weight:600}
+.mem .num{font-size:14px;color:var(--muted);text-align:right}
+.mem .hd2{font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);font-weight:600}
+
+/* ---------- console ---------- */
+.console{background:var(--navy-3);color:var(--cream);margin-bottom:18px}
+.ctop{background:var(--navy);padding:10px 18px;display:flex;justify-content:space-between;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--navy-mid);font-weight:600}
+.cbody{padding:28px 20px 24px;text-align:center}
+.cph{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:600}
+.cnow{font-family:var(--d);font-weight:600;font-size:27px;line-height:1.2;margin-bottom:4px}
+.cnote{font-size:15px;color:var(--navy-mid);margin-bottom:16px;min-height:23px;font-style:italic}
+.big{font-family:var(--d);font-weight:700;font-size:92px;line-height:0.88;font-variant-numeric:tabular-nums}
+.big.warn{color:var(--hot)}
+.gcue{margin-top:14px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--hot);min-height:20px;font-weight:600}
+.ctrl{display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.cbtn{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:10px 20px;border:1px solid var(--navy-2);color:var(--cream)}
+.cbtn:hover{background:var(--cream);color:var(--navy-3)}
+.cbtn.p{border-color:var(--gold);color:var(--gold)}
+.cbtn.p:hover{background:var(--gold);color:var(--navy)}
+.cnext{border-top:1px solid var(--navy-2);padding:11px 18px;font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--navy-mid);display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.cnext b{color:var(--cream);font-weight:500}
+.runlist{border-top:1px solid var(--rule)}
+.rr{display:grid;grid-template-columns:54px 1fr 54px;border-bottom:1px solid var(--rule);align-items:center;cursor:pointer}
+.rr .rt2{font-size:12px;color:var(--faint);padding:9px 0}
+.rr .rl2{padding:9px 13px;border-left:1px solid var(--rule);display:flex;gap:8px;align-items:center;font-size:16px}
+.rr .rd2{font-size:12px;color:var(--muted);text-align:right}
+.rr.cur{background:var(--navy-pale)}
+.rr.cur .rl2{font-weight:600}
+.rr.done{color:var(--faint)}
+.rr.done .rl2{text-decoration:line-through;text-decoration-color:var(--rule)}
+.mk{color:var(--cl);font-weight:700;font-family:var(--d);letter-spacing:-1px}
+
+/* ---------- admin ---------- */
+.acard{border:1px solid var(--rule);margin-bottom:20px}
+.ahd{background:var(--band);border-bottom:1px solid var(--rule);padding:11px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.ahd .t{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;color:var(--navy)}
+.ahd .n{font-size:11px;color:var(--faint);letter-spacing:0.08em}
+.abody{padding:16px}
+.ted{display:grid;grid-template-columns:1fr 74px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}
+.ted:last-child{border:none}
+.ted .nm2{font-size:15.5px;display:flex;gap:8px;align-items:center}
+.ted input{width:100%;border:1px solid var(--rule);padding:5px 8px;text-align:right;background:#FCFBF7;font-size:14px}
+.ted input:focus{outline:none;border-color:var(--navy)}
+.fmtrow{display:flex;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.fmtrow input{border:1px solid var(--rule);padding:6px 8px;background:#FCFBF7;font-size:13.5px}
+.fmtrow input:focus{outline:none;border-color:var(--navy)}
+.fmtrow .fn{flex:1 1 150px;min-width:110px;font-weight:600}
+.fmtrow .fd{flex:2 1 220px;min-width:140px;color:var(--muted)}
+.fmtrow .fdur{width:58px;text-align:center;flex:0 0 auto}
+.fmtrow select{border:1px solid var(--rule);background:#FCFBF7;padding:6px 2px;font-size:11px;flex:0 0 auto}
+.fmtrow .fbtn{font-size:11px;padding:4px 8px;border:1px solid var(--rule);color:var(--muted);flex:0 0 auto}
+.fmtrow .fbtn:hover{border-color:var(--navy);color:var(--navy)}
+.sed{display:grid;grid-template-columns:1fr 220px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--rule)}
+.sed:last-child{border:none}
+.sed .nm2{font-size:15.5px}
+.sed input{width:100%;border:1px solid var(--rule);padding:6px 8px;background:#FCFBF7;font-size:14px}
+.sed input:focus{outline:none;border-color:var(--navy)}
+.tsum{display:flex;gap:24px;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule);font-size:13px;color:var(--faint);letter-spacing:0.06em;text-transform:uppercase}
+.tsum b{color:var(--ink);font-weight:600}
+.tsum b.over{color:var(--cl)}
+.rep{border-bottom:1px solid var(--rule);padding:14px 0}
+.rep:last-child{border:none}
+.rep .rh{display:flex;justify-content:space-between;gap:12px;margin-bottom:5px;flex-wrap:wrap}
+.rep .id{font-size:11px;letter-spacing:0.1em;color:var(--faint);text-transform:uppercase}
+.rep .tg{font-size:9px;letter-spacing:0.11em;text-transform:uppercase;font-weight:600;padding:2px 7px}
+.rep .tg.new{background:var(--cl-pale);color:var(--cl)}
+.rep .tg.seen{background:var(--band);color:var(--faint)}
+.rep .bd{font-size:15.5px}
+.rep .mt{font-size:12.5px;color:var(--faint);margin-top:5px;font-style:italic}
+
+.pres{border-top:1px solid var(--rule)}
+.pr{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--rule)}
+.pr .y{font-size:12px;letter-spacing:0.1em;color:var(--faint);font-weight:600}
+.pr .n2{font-family:var(--d);font-size:20px;font-weight:600}
+.pr .t2{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dk);font-weight:600}
+
+footer{background:var(--navy);color:var(--navy-mid);margin-top:40px}
+footer .fw{max-width:940px;margin:0 auto;padding:20px 28px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:10px;letter-spacing:0.13em;text-transform:uppercase}
+footer button{color:var(--gold);text-decoration:underline;text-underline-offset:3px;font-size:10px;letter-spacing:0.13em;text-transform:uppercase}
+
+/* ---------- public top-bar auth ---------- */
+.bauth{display:flex;gap:10px;align-items:center}
+.topbtn{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:8px 15px;border:1px solid rgba(212,175,55,.5);color:var(--gold);white-space:nowrap}
+.topbtn:hover{background:rgba(212,175,55,.12)}
+.topbtn.solid{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.topbtn.solid:hover{background:var(--gold-soft);border-color:var(--gold-soft)}
+
+/* ---------- auth modal ---------- */
+.authwrap{position:fixed;inset:0;z-index:80;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px 24px;
+  background:rgba(14,24,43,.74);backdrop-filter:blur(3px);overflow-y:auto}
+.authwrap.on{display:flex}
+.authcard{position:relative;width:100%;max-width:452px;color:var(--cream);padding:44px 38px 36px;border:1px solid rgba(212,175,55,.22);
+  background:radial-gradient(ellipse at 50% 22%, #1E3151 0%, #16243F 62%, #0E1A31 100%)}
+.authcard:before{content:"";position:absolute;inset:5px;border:1px solid rgba(212,175,55,.10);pointer-events:none}
+.authclose{position:absolute;top:10px;right:14px;font-size:24px;line-height:1;color:var(--navy-mid);z-index:2;padding:4px 8px}
+.authclose:hover{color:var(--gold)}
+.demohint{margin-top:16px;padding:9px 12px;border:1px dashed rgba(212,175,55,.35);font-size:12px;color:var(--gold-soft);letter-spacing:0.03em;text-align:center}
+
+/* ---------- home / landing ---------- */
+.lead-in{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:16px}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.how .c2{background:var(--paper);padding:24px 22px}
+.how .c2 .n{font-family:var(--d);font-weight:700;font-size:23px;color:var(--gold-dk);line-height:1;margin-bottom:14px}
+.how .c2 .t{font-family:var(--d);font-weight:600;font-size:19px;color:var(--navy);margin-bottom:7px;line-height:1.25}
+.how .c2 .w{font-size:15px;color:var(--muted);line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule);background:var(--band)}
+.stat{padding:28px 18px;text-align:center;border-right:1px solid var(--rule)}
+.stat:last-child{border-right:none}
+.stat .v{font-family:var(--d);font-weight:700;font-size:42px;color:var(--navy);line-height:1}
+.stat .l{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-top:8px}
+.joincta{background:var(--navy);color:var(--cream);padding:28px 26px;display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;position:relative;margin-top:26px}
+.joincta:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--gold)}
+.joincta .jt{font-family:var(--d);font-weight:600;font-size:26px;max-width:24ch;line-height:1.2}
+.joincta .js{font-size:14.5px;color:var(--navy-mid);margin-top:7px;max-width:44ch}
+.reqch{border:1px solid var(--rule);background:var(--band);border-left:3px solid var(--gold);padding:18px 20px;margin-top:18px}
+.reqch .rt2{font-family:var(--d);font-weight:600;font-size:20px;color:var(--navy);margin-bottom:4px}
+.reqch .rw2{font-size:15px;color:var(--muted);max-width:60ch;margin-bottom:14px}
+.rostmore{font-size:12.5px;color:var(--faint);letter-spacing:0.04em;margin-top:10px;font-style:italic}
+
+/* ---------- wordmark ---------- */
+.the{font-family:var(--d);font-style:italic;font-weight:500;text-transform:none}
+.nm .the{font-size:16px;letter-spacing:.01em;color:var(--gold-soft);margin-right:4px}
+
+/* ---------- home splash (grand entrance) ---------- */
+#home.page{padding-top:0}
+#homeMember{padding-top:40px}
+.splash{background:radial-gradient(ellipse at 50% 30%, #1E3151 0%, #16243F 60%, #0E1A31 100%);color:var(--cream);text-align:center;padding:84px 20px 88px;border-bottom:2px solid var(--gold)}
+.splash .mark.xl{width:100px;height:100px;flex:0 0 100px;margin:0 auto 30px;display:block}
+.wm{font-family:var(--d);line-height:1;color:var(--cream)}
+.wm .the{display:block;font-size:40px;letter-spacing:.02em;color:var(--gold-soft);margin-bottom:12px}
+.wm .nmx{display:block;font-weight:600;font-size:66px;letter-spacing:.15em;text-transform:uppercase}
+.splash-tag{font-family:var(--d);font-size:21px;font-weight:500;line-height:1.4;color:var(--gold-soft);margin:24px auto 0;max-width:40ch}
+.splash-cta{display:flex;gap:14px;justify-content:center;margin-top:38px;flex-wrap:wrap}
+.splash-cta .topbtn{padding:13px 26px;font-size:11px}
+
+/* ---------- mission statement ---------- */
+.manifesto{max-width:60ch;margin:58px auto 8px;text-align:center}
+.manifesto p{font-family:var(--d);font-weight:500;font-size:25px;line-height:1.42;color:var(--navy)}
+.manifesto .amp{display:inline-block;margin-top:20px;font-family:var(--b);font-size:15px;color:var(--gold-dk);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- about page (Oxford-style) ---------- */
+#about.page{padding-top:0}
+.abhero{background:radial-gradient(ellipse at 50% 45%, #1E3151 0%, #16243F 62%, #0E1A31 100%);color:var(--cream);text-align:center;padding:72px 20px 76px;border-bottom:2px solid var(--gold)}
+.abhero h2{font-family:var(--d);font-weight:600;font-size:46px;letter-spacing:.02em;line-height:1.08}
+.about-body{max-width:66ch;margin:0 auto;padding-top:56px;text-align:center}
+.about-body .lede{font-family:var(--d);font-weight:600;font-size:33px;line-height:1.2;color:var(--navy);margin-bottom:22px}
+.flr{display:block;margin:0 auto 32px;color:var(--gold)}
+.about-body p{font-size:17px;line-height:1.75;color:var(--ink);margin-bottom:22px}
+.about-body p.lks{color:var(--muted);font-size:16px}
+.about-body a.lk{color:var(--gold-dk);text-decoration:underline;text-underline-offset:2px}
+.about-cta{margin-top:38px}
+.bigjoin{display:inline-block;background:var(--gold);color:var(--navy);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;padding:16px 44px}
+.bigjoin:hover{background:var(--gold-soft)}
+.about-sub{margin-top:20px;font-size:15px;color:var(--muted)}
+.about-sub button{color:var(--gold-dk);text-decoration:underline;text-underline-offset:3px;font-weight:600}
+
+@media(max-width:700px){
+  .wrap{padding:0 16px}
+  .how,.stats{grid-template-columns:1fr}
+  .stat{border-right:none;border-bottom:1px solid var(--rule)}
+  .stat:last-child{border-bottom:none}
+  nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{white-space:nowrap}
+  .authcard{padding:38px 24px 30px}
+  .splash{padding:54px 18px 58px}
+  .splash .mark.xl{width:76px;height:76px;margin-bottom:22px}
+  .wm .nmx{font-size:38px;letter-spacing:.1em}
+  .wm .the{font-size:30px}
+  .manifesto{margin-top:44px}
+  .manifesto p{font-size:20px}
+  .abhero{padding:50px 18px 54px}
+  .abhero h2{font-size:32px}
+  .about-body{padding-top:40px}
+  .about-body .lede{font-size:26px}
+  .joincta .jt{font-size:22px}
+  .hero{padding:26px 18px 22px}
+  .hero .mo{font-size:26px}
+  .sides,.chs,.gavel{grid-template-columns:1fr}
+  .side.f{border-right:none;border-bottom:1px solid var(--rule)}
+  .big{font-size:64px}
+  .bars{grid-template-columns:46px 1fr 62px}
+  .row,.pr{grid-template-columns:1fr;gap:4px}
+  .mem{grid-template-columns:1fr 60px;gap:8px}
+  .mem .rl,.mem .hd2:nth-child(2){display:none}
+  nav button{margin-right:14px}
+  .hi{padding-right:16px;margin-right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH MODAL ================= -->
+<div class="authwrap" id="authModal" role="dialog" aria-modal="true" aria-label="Sign in or join the National Civic Society">
+  <div class="authcard">
+    <button class="authclose" id="authX" aria-label="Close">&times;</button>
+    <span class="cn nw"></span><span class="cn ne"></span><span class="cn sw"></span><span class="cn se"></span>
+    <div class="lbox">
+    <svg class="mark lg" viewBox="0 0 100 100" aria-label="National Civic Society">
+      <g fill="none" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round">
+        <path d="M26 18 C10 42 14 68 40 84"/><path d="M74 18 C90 42 86 68 60 84"/>
+        <path d="M42 85 Q50 79 58 85"/><path d="M43 90 L38 96"/><path d="M57 90 L62 96"/>
+      </g>
+      <g fill="#D4AF37">
+        <ellipse cx="24" cy="30" rx="4.6" ry="2.4" transform="rotate(-38 24 30)"/>
+        <ellipse cx="21" cy="42" rx="4.6" ry="2.4" transform="rotate(-16 21 42)"/>
+        <ellipse cx="22" cy="54" rx="4.6" ry="2.4" transform="rotate(8 22 54)"/>
+        <ellipse cx="27" cy="66" rx="4.6" ry="2.4" transform="rotate(28 27 66)"/>
+        <ellipse cx="35" cy="76" rx="4.6" ry="2.4" transform="rotate(46 35 76)"/>
+        <ellipse cx="76" cy="30" rx="4.6" ry="2.4" transform="rotate(38 76 30)"/>
+        <ellipse cx="79" cy="42" rx="4.6" ry="2.4" transform="rotate(16 79 42)"/>
+        <ellipse cx="78" cy="54" rx="4.6" ry="2.4" transform="rotate(-8 78 54)"/>
+        <ellipse cx="73" cy="66" rx="4.6" ry="2.4" transform="rotate(-28 73 66)"/>
+        <ellipse cx="65" cy="76" rx="4.6" ry="2.4" transform="rotate(-46 65 76)"/>
+        <path d="M50 20 l2.4 5 5.4.6 -4 3.7 1.1 5.4 -4.9-2.8 -4.9 2.8 1.1-5.4 -4-3.7 5.4-.6z"/>
+      </g>
+    </svg>
+    <h1><span class="the" style="display:block;font-size:26px;color:var(--gold-soft);letter-spacing:.02em;margin-bottom:6px">the</span>National Civic Society</h1>
+    <div class="tag">Since 2025</div>
+    <div class="lrule"><i></i></div>
+
+    <div id="signin">
+      <div class="lf"><label for="e1">Email</label><input id="e1" type="email" placeholder="you@yourschool.org"></div>
+      <div class="lf"><label for="p1">Password</label><input id="p1" type="password" placeholder="••••••••"></div>
+      <div id="signinErr" style="color:var(--hot);font-size:13px;margin:-4px 0 12px;display:none"></div>
+      <button class="lbtn" id="dosignin">Sign in</button>
+      <div class="lalt">No account? <button id="toreg">Create one</button></div>
+    </div>
+
+    <div id="reg" style="display:none">
+      <div class="lf"><label for="n2">Full name</label><input id="n2" placeholder="First and last"></div>
+      <div class="lf"><label for="e2">School email</label><input id="e2" type="email" placeholder="you@yourschool.org"></div>
+      <div class="lf">
+        <label for="s2">Your school</label>
+        <select id="s2">
+          <option value="__req">Request a chapter (my school isn't listed)</option>
+        </select>
+        <div class="h">No chapter at your school yet? Choose the last option to start one.</div>
+      </div>
+      <div class="lf"><label for="p2">Password</label><input id="p2" type="password"></div>
+      <div id="regErr" style="color:var(--hot);font-size:13px;margin:-4px 0 12px;display:none"></div>
+      <button class="lbtn" id="doreg">Create account</button>
+      <div class="lalt">Have an account? <button id="tosignin">Sign in</button></div>
+    </div>
+
+    <div class="demohint" id="authHint">Check your inbox after registering — most Supabase projects require confirming your email before you can sign in.</div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+<div class="bar">
+  <div class="wrap">
+    <div class="brow">
+      <div class="bl">
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+          <g fill="none" stroke="#D4AF37" stroke-width="2.4" stroke-linecap="round">
+            <path d="M26 18 C10 42 14 68 40 84"/><path d="M74 18 C90 42 86 68 60 84"/>
+            <path d="M42 85 Q50 79 58 85"/>
+          </g>
+          <g fill="#D4AF37">
+            <ellipse cx="22" cy="40" rx="5.4" ry="2.8" transform="rotate(-16 22 40)"/>
+            <ellipse cx="24" cy="56" rx="5.4" ry="2.8" transform="rotate(12 24 56)"/>
+            <ellipse cx="33" cy="72" rx="5.4" ry="2.8" transform="rotate(42 33 72)"/>
+            <ellipse cx="78" cy="40" rx="5.4" ry="2.8" transform="rotate(16 78 40)"/>
+            <ellipse cx="76" cy="56" rx="5.4" ry="2.8" transform="rotate(-12 76 56)"/>
+            <ellipse cx="67" cy="72" rx="5.4" ry="2.8" transform="rotate(-42 67 72)"/>
+            <path d="M50 22 l2.6 5.4 5.9.7 -4.3 4 1.2 5.9 -5.4-3 -5.4 3 1.2-5.9 -4.3-4 5.9-.7z"/>
+          </g>
+        </svg>
+        <div class="nm"><span class="the">the</span>National Civic Society<small id="chname">United States</small></div>
+      </div>
+      <div class="br">
+        <div class="bauth" id="guestbar">
+          <button class="topbtn" id="openSignin">Log in</button>
+          <button class="topbtn solid" id="openJoin">Join</button>
+        </div>
+        <div id="userbar" style="display:none">
+          <b id="uname">—</b> · <span id="urole"></span><br>
+          Signed in as <b id="uview">member</b>
+          <span id="viewAsWrap" style="display:none">· Viewing as <select id="viewAsSel" style="background:var(--navy-3);color:var(--cream);border:1px solid var(--navy-2);font-size:12px;padding:2px 4px">
+            <option value="national_admin">National admin</option>
+            <option value="leader">Admin (chapter leader)</option>
+            <option value="member">Member</option>
+          </select></span>
+          · <button id="logout">Sign out</button>
+        </div>
+      </div>
+    </div>
+    <nav role="tablist" id="nav">
+      <button role="tab" aria-selected="true" data-p="home">Home</button>
+      <button role="tab" aria-selected="false" data-p="about">About</button>
+      <button role="tab" aria-selected="false" data-p="schedule">Schedule</button>
+      <button role="tab" aria-selected="false" data-p="archive">Archive</button>
+      <button role="tab" aria-selected="false" data-p="chapters">Chapters</button>
+      <button role="tab" aria-selected="false" data-p="rules">Rules</button>
+      <button role="tab" aria-selected="false" data-p="vote" class="mbr">Vote</button>
+      <button role="tab" aria-selected="false" data-p="submit" class="mbr">Submit</button>
+      <button role="tab" aria-selected="false" data-p="account" class="mbr">Account</button>
+      <button role="tab" aria-selected="false" data-p="chair" class="lead ldr">Chair</button>
+      <button role="tab" aria-selected="false" data-p="admin" class="lead ldr">Admin</button>
+      <button role="tab" aria-selected="false" data-p="settings" class="lead ldr">Settings</button>
+    </nav>
+  </div>
+</div>
+
+<!-- ---- HOME ---- -->
+<div class="page on" id="home" role="tabpanel">
+
+  <!-- Public: the grand entrance -->
+  <div id="homeGuest">
+    <section class="splash">
+      <div class="wrap">
+        <svg class="mark xl" viewBox="0 0 100 100" aria-label="National Civic Society">
+          <g fill="none" stroke="#D4AF37" stroke-width="1.6" stroke-linecap="round">
+            <path d="M26 18 C10 42 14 68 40 84"/><path d="M74 18 C90 42 86 68 60 84"/>
+            <path d="M42 85 Q50 79 58 85"/><path d="M43 90 L38 96"/><path d="M57 90 L62 96"/>
+          </g>
+          <g fill="#D4AF37">
+            <ellipse cx="24" cy="30" rx="4.6" ry="2.4" transform="rotate(-38 24 30)"/>
+            <ellipse cx="21" cy="42" rx="4.6" ry="2.4" transform="rotate(-16 21 42)"/>
+            <ellipse cx="22" cy="54" rx="4.6" ry="2.4" transform="rotate(8 22 54)"/>
+            <ellipse cx="27" cy="66" rx="4.6" ry="2.4" transform="rotate(28 27 66)"/>
+            <ellipse cx="35" cy="76" rx="4.6" ry="2.4" transform="rotate(46 35 76)"/>
+            <ellipse cx="76" cy="30" rx="4.6" ry="2.4" transform="rotate(38 76 30)"/>
+            <ellipse cx="79" cy="42" rx="4.6" ry="2.4" transform="rotate(16 79 42)"/>
+            <ellipse cx="78" cy="54" rx="4.6" ry="2.4" transform="rotate(-8 78 54)"/>
+            <ellipse cx="73" cy="66" rx="4.6" ry="2.4" transform="rotate(-28 73 66)"/>
+            <ellipse cx="65" cy="76" rx="4.6" ry="2.4" transform="rotate(-46 65 76)"/>
+            <path d="M50 20 l2.4 5 5.4.6 -4 3.7 1.1 5.4 -4.9-2.8 -4.9 2.8 1.1-5.4 -4-3.7 5.4-.6z"/>
+          </g>
+        </svg>
+        <div class="wm"><span class="the">the</span><span class="nmx">National Civic Society</span></div>
+        <div class="splash-tag">The National Civic Society brings free speech, challenging conversations, and critical thinking to high schools across America</div>
+        <div class="splash-cta">
+          <button class="topbtn solid" id="splashJoin">Join</button>
+          <button class="topbtn" id="splashAbout">What we're about</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="manifesto">
+        <p>Most of what you believe, you have never actually had to argue for.</p>
+        <a class="amp" href="#" data-goto="about">Read what we're about</a>
+      </div>
+
+      <h3 class="sec gap">How our debates work</h3>
+      <div class="how">
+        <div class="c2"><div class="n">01</div><div class="t">The room votes first</div><div class="w">Everyone votes on the motion before anyone speaks. It is a private ballot by QR code.</div></div>
+        <div class="c2"><div class="n">02</div><div class="t">Both sides make the case</div><div class="w">Openings, two rounds of open forum, then closings. The floor is open to any member and there is no sign-up to speak.</div></div>
+        <div class="c2"><div class="n">03</div><div class="t">The room votes again</div><div class="w">The side that changes more minds wins, even if it finishes in the minority.</div></div>
+      </div>
+      <p class="note" style="margin-bottom:26px">The side that wins is the one that changed the most minds, not the one that started ahead. Every result in the <a href="#" data-goto="archive" style="color:var(--gold-dk);text-decoration:underline;text-underline-offset:2px">archive</a> is scored that way.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="v tn" id="statChapters">—</div><div class="l">Active chapters</div></div>
+        <div class="stat"><div class="v tn" id="statMembers">—</div><div class="l">Members nationwide</div></div>
+        <div class="stat"><div class="v tn" id="statDebates">—</div><div class="l">Debates held</div></div>
+      </div>
+
+      <div class="joincta" id="homeJoin">
+        <div>
+          <div class="jt">Debate with us.</div>
+          <div class="js">Join your school's chapter to vote, submit topics, and speak in debates. Or start a chapter at your own school.</div>
+        </div>
+        <button class="topbtn solid" id="ctaJoin" style="padding:12px 22px">Join the National Civic Society</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Members: your chapter -->
+  <div id="homeMember" style="display:none"><div class="wrap">
+    <div class="lead-in" id="memberLeadIn">Your chapter</div>
+    <div class="hero">
+      <div class="k">Next debate</div>
+      <div class="mo" id="heroMotion">No topic set yet.</div>
+      <div class="hrow">
+        <div class="hi"><div class="l">When</div><div class="v" id="heroWhen">—</div></div>
+        <div class="hi"><div class="l">Where</div><div class="v" id="heroRoom">TBD</div></div>
+        <div class="hi"><div class="l">Length</div><div class="v" id="heroLen">—</div></div>
+        <div class="hi"><div class="l">Starts in</div><div class="v g tn" id="cd">—</div></div>
+      </div>
+    </div>
+
+    <div class="strip" id="liveBallotBox" style="display:none;margin-top:20px;flex-direction:column;align-items:flex-start;gap:12px">
+      <div class="l"><b id="liveBallotLabel">The room is voting now.</b> Private ballot — pick the side you agree with more.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" data-side="for">For</button>
+        <button class="btn" data-side="against">Against</button>
+        <button class="btn gh" data-side="undecided">Undecided</button>
+      </div>
+      <div class="note" id="liveBallotStatus"></div>
+    </div>
+
+    <h3 class="sec">Speaking</h3>
+    <div class="sides">
+      <div class="side f"><div class="hd">For</div>
+        <div class="spk held"><span>Not yet assigned</span><span class="lg">Open</span></div>
+      </div>
+      <div class="side a"><div class="hd">Against</div>
+        <div class="spk held"><span>Not yet assigned</span><span class="lg">Open</span></div>
+      </div>
+    </div>
+
+    <h3 class="sec gap">Running the room</h3>
+    <div class="rows">
+      <div class="row"><div class="d">Chair</div><div class="m" style="font-size:17px">Not yet assigned<small>Holds the clock and the gavel. Does not debate.</small></div><div class="s"></div></div>
+      <div class="row"><div class="d">Logger</div><div class="m" style="font-size:17px">Not yet assigned<small>Records floor contributions to the log.</small></div><div class="s"></div></div>
+    </div>
+
+    <div class="strip" style="margin-top:24px">
+      <div class="l"><b>The floor is open to all members.</b> Six contributions of 45 seconds across two rounds, no sign-up required. Speaking slots are drawn from the floor log.</div>
+      <div class="r">Open to all</div>
+    </div>
+    <p class="note" style="margin-top:16px" id="heroThesis"></p>
+  </div></div>
+
+</div>
+
+<!-- ---- ABOUT ---- -->
+<div class="page" id="about" role="tabpanel">
+  <section class="abhero"><div class="wrap"><h2>About the National Civic Society</h2></div></section>
+
+  <div class="wrap">
+    <div class="about-body">
+      <div class="lede">A debating society for American high schools</div>
+      <svg class="flr" width="66" height="14" viewBox="0 0 66 14" aria-hidden="true"><path d="M3 7 C 14 -1, 20 15, 33 7 C 46 -1, 52 15, 63 7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+
+      <p>The National Civic Society (N.C.S.) brings free speech, open argument, and critical thinking into American high schools. At every meeting, members take a contested question in politics, ethics, or current affairs and debate it from both sides, examining it below the surface and testing their own views against people who see it differently.</p>
+
+      <p>N.C.S. grew out of a society founded at Seattle Academy in 2025. A small group of students who were drawn to large, difficult questions found no place in school to discuss them across different friend groups and backgrounds, so they started one.</p>
+
+      <p>Once the society was established, its founders created the National Civic Society to bring it to other schools. Each chapter is student-led and follows the same standing orders, and any high school in the country can start one.</p>
+
+      <p>Debates are held at every meeting, with the floor open to any member and no sign-up required to speak. N.C.S. takes no position of its own; members argue every side of a question, and the room votes before and after, with the result going to whichever side changes more minds. Some members come to sharpen how they argue, others to get more comfortable speaking in front of a room, and many simply to spend an hour in a genuine conversation with people they disagree with.</p>
+
+      <p class="lks">See the <a class="lk" href="#" data-goto="schedule">Schedule</a> for what is coming up, or the <a class="lk" href="#" data-goto="archive">Archive</a> for how past debates were decided.</p>
+
+      <p>Joining N.C.S. gives you a place to argue hard questions with people who see them differently, and to work through them in the open. We would be glad to have you.</p>
+
+      <div class="about-cta"><button class="bigjoin" id="aboutJoin">Join the National Civic Society</button></div>
+      <div class="about-sub">No chapter at your school yet? <button id="aboutReq">Start one.</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ---- SCHEDULE ---- -->
+<div class="page" id="schedule" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="schedSeason">Loading…</div><h2>Schedule</h2>
+</div>
+  <div class="rows">
+    <div class="row tbd"><div class="d" data-mt="0"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
+    <div class="row tbd"><div class="d" data-mt="1"></div><div class="m">Topic to be decided<small><span id="schedVote"></span>.</small></div><div class="s">Vote open</div></div>
+    <div class="row tbd"><div class="d" data-mt="2"></div><div class="m">Topic to be decided<small><span id="schedSub1"></span>.</small></div><div class="s">Submissions open</div></div>
+    <div class="row tbd"><div class="d" data-mt="3"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
+    <div class="row tbd"><div class="d" data-mt="4"></div><div class="m">Topic to be decided<small><span id="schedSub2"></span>.</small></div><div class="s">Not yet open</div></div>
+    <div class="row tbd"><div class="d" data-mt="5"></div><div class="m">Topic to be decided</div><div class="s"></div></div>
+  </div>
+</div></div>
+
+<!-- ---- VOTE ---- -->
+<div class="page" id="vote" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="voteK">Vote</div><h2>Vote on the next topic</h2>
+    <p>Pick the submission you'd most like to see debated. You can change your pick until voting closes.</p></div>
+  <div id="voteList"><p class="note">Loading…</p></div>
+  <div class="sealed">Results are hidden until voting closes.</div>
+</div></div>
+
+<!-- ---- SUBMIT ---- -->
+<div class="page" id="submit" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="subK">Submit a topic</div><h2>Submit a topic</h2>
+    <p>The chair shortlists three. The society votes on those. Write a claim someone could stand up and deny — one sentence, specific enough that a person could actually take the other side.</p></div>
+  <div class="field"><label for="m1">The topic</label><input id="m1" placeholder="A claim, stated plainly.">
+    <div class="h">One sentence. It has to work both ways, so someone can take the other side.</div></div>
+  <div class="field"><label for="m2">Why it matters</label><textarea id="m2" rows="3" placeholder="Two sentences."></textarea>
+    <div class="h">The shortlist gets built from this, not from the topic alone.</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+    <button class="btn" id="subbtn">Submit</button>
+    <span class="quota" id="subquota">1 of 2 submissions used this cycle</span>
+  </div>
+</div></div>
+
+<!-- ---- ARCHIVE ---- -->
+<div class="page" id="archive" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k">Every debate, every result</div><h2>Archive</h2>
+    <p>The room votes before and after. The side that moves more of the room wins, even if the other side still holds more of it at the end.</p></div>
+  <div class="tog" role="tablist">
+    <button role="tab" aria-selected="true" data-sc="mine" id="arcMineTab">This chapter</button>
+    <button role="tab" aria-selected="false" data-sc="all">All chapters</button>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--navy)"></i>For</span>
+    <span><i style="background:var(--cl)"></i>Against</span>
+    <span><i style="background:var(--navy-mid)"></i>Before the debate</span>
+  </div>
+  <div id="arclist"></div>
+</div></div>
+
+<!-- ---- CHAPTERS ---- -->
+<div class="page" id="chapters" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k">Nationwide</div><h2>Chapters</h2>
+</div>
+  <div class="mapwrap">
+    <div id="wamap"></div>
+    <div class="mlg" id="maplegend">
+      <span><i style="background:var(--gold);border:1px solid var(--navy)"></i>Founding</span>
+      <span><i style="background:var(--navy)"></i>Active</span>
+      <span><i style="background:#fff;border:2px solid var(--navy-mid)"></i>Pending</span>
+      <span><i style="background:#fff;border:1px dashed var(--faint)"></i>Inquiry</span>
+    </div>
+  </div>
+  <div class="chs" id="chlist"></div>
+  <div id="chdetail"></div>
+  <div class="reqch" style="margin-top:18px">
+    <div class="rt2">Don't see your school?</div>
+    <div class="rw2">Any high school can start a chapter. Register and choose "Request a chapter" from the school list to get started.</div>
+    <button class="topbtn solid" id="chReqBtn" style="padding:11px 20px">Request a chapter</button>
+  </div>
+</div></div>
+
+<!-- ---- RULES ---- -->
+<div class="page" id="rules" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k">Standing orders · rev. 1</div><h2>Rules of procedure</h2>
+</div>
+
+  <h3 class="sec">1 · The gavel</h3>
+  <div class="gavel">
+    <div class="gv"><div class="st">|</div><div class="wt">One strike</div><div class="sm">The speaker should finish their current sentence and conclude.</div></div>
+    <div class="gv"><div class="st">||</div><div class="wt">Two strikes</div><div class="sm">The speaker's time has ended and they should stop.</div></div>
+  </div>
+  <p class="note">The chair signals with the gavel rather than interrupting verbally. The chair explains the gavel during the opening at the first meeting of the year.</p>
+
+  <h3 class="sec gap">2 · Order of proceedings</h3>
+  <div style="border-top:1px solid var(--rule)">
+    <div class="rule-row"><div class="rk">2.1</div><div><div class="rt">The timer is displayed to the whole room</div><div class="rw">The countdown runs on the room's screen, visible to every member.</div></div></div>
+    <div class="rule-row"><div class="rk">2.2</div><div><div class="rt">Each side gives an opening before open forum begins</div><div class="rw">The proposition speaks first, then the opposition, each without interruption. Open forum follows.</div></div></div>
+    <div class="rule-row"><div class="rk">2.3</div><div><div class="rt">A member may not take two consecutive turns in open forum</div><div class="rw">At least one other person must speak between any member's turns. The chair may call on a speaker who has not yet contributed.</div></div></div>
+    <div class="rule-row"><div class="rk">2.4</div><div><div class="rt">Floor contributions are statements, not questions</div><div class="rw">A member using floor time makes an argument rather than asking a question. Each contribution is limited to 45 seconds.</div></div></div>
+    <div class="rule-row"><div class="rk">2.5</div><div><div class="rt">Speakers are not required to respond to any given floor contribution</div><div class="rw">Speakers choose which floor points to address. What is raised and what is answered is recorded in the log.</div></div></div>
+    <div class="rule-row"><div class="rk">2.6</div><div><div class="rt">The proposition delivers the final closing</div><div class="rw">Closings run opposition first, then proposition.</div></div></div>
+    <div class="rule-row"><div class="rk">2.7</div><div><div class="rt">The chair marks the transition between open-forum blocks</div><div class="rw">Between the two open-forum blocks the chair restates the motion and summarizes where the disagreement stands. No vote is taken.</div></div></div>
+    <div class="rule-row"><div class="rk">2.8</div><div><div class="rt">Floor rounds absorb changes to timing</div><div class="rw">The chair may add a fourth floor contribution when ahead of schedule, or reduce a round to two when behind. A floor round is not cut in favor of a main speaker.</div></div></div>
+    <div class="rule-row"><div class="rk">2.9</div><div><div class="rt">Two floor speakers are arranged in advance</div><div class="rw">Before each debate the chair arranges for two members to speak first when the floor opens.</div></div></div>
+  </div>
+
+  <h3 class="sec gap">3 · Voting</h3>
+  <div class="rows">
+    <div class="row"><div class="d">3.1 Method</div><div class="m" style="font-size:17px">Private ballot by QR code<small>Members vote through a form linked by a QR code on the room's screen.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">3.2 Timing</div><div class="m" style="font-size:17px">Once before, once after<small>The room votes at the opening and at the close. There is no midpoint vote.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">3.3 Result</div><div class="m" style="font-size:17px">Decided by the larger change in the vote<small>The side that shifts more of the room between the two votes wins, regardless of the final majority. The result is announced and recorded in the archive.</small></div><div class="s"></div></div>
+  </div>
+
+  <h3 class="sec gap">4 · Speaker selection</h3>
+  <div class="rows">
+    <div class="row"><div class="d">4.1 Qualifying</div><div class="m" style="font-size:17px">Drawn from the floor log<small>Speaking slots are offered to members whose floor contributions have been recorded in the log.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">4.2 Reserved slot</div><div class="m" style="font-size:17px">One slot per debate for a first-time speaker<small>Of the four speaking positions, one is held for a member who has not previously spoken.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">4.3 Rotation</div><div class="m" style="font-size:17px">A speaker sits out the next two debates<small>After speaking, a member is not eligible for a speaking slot for the next two debates.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">4.4 Confirmation</div><div class="m" style="font-size:17px">A one-line thesis, 48 hours before<small>Selected speakers submit one sentence stating their position two days before the debate. A speaker who does not confirm is replaced by the reserve.</small></div><div class="s"></div></div>
+    <div class="row"><div class="d">4.5 Non-attendance</div><div class="m" style="font-size:17px">Two additional debates before eligibility<small>A speaker who fails to appear without notice sits out two debates beyond the standard rotation.</small></div><div class="s"></div></div>
+  </div>
+</div></div>
+
+<!-- ---- ACCOUNT ---- -->
+<div class="page" id="account" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k">Your account</div><h2 id="acName">—</h2></div>
+  <div class="field"><label for="ac1">Name</label><input id="ac1"></div>
+  <div class="field"><label for="ac2">School email</label><input id="ac2" disabled style="color:var(--faint)">
+    <div class="h">Changing your email isn't supported here yet.</div></div>
+  <div class="field"><label for="ac3">Your chapter</label>
+    <select id="ac3"></select></div>
+  <div class="field"><label for="ac4">Office</label><input id="ac4" disabled style="color:var(--faint)" placeholder="Not holding an office">
+    <div class="h">Only a sitting leader can change offices.</div></div>
+  <div id="acErr" style="color:var(--hot);font-size:13px;margin:-4px 0 12px;display:none"></div>
+  <button class="btn" id="acSave">Save changes</button>
+
+  <h3 class="sec gap">Your record</h3>
+  <div class="rows">
+    <div class="row"><div class="d">Floor log</div><div class="m" style="font-size:17px" id="acFloor">—</div><div class="s"></div></div>
+    <div class="row"><div class="d">Member since</div><div class="m" style="font-size:17px" id="acSince">—</div><div class="s"></div></div>
+  </div>
+
+  <h3 class="sec gap">Your permissions</h3>
+  <p class="note" style="margin-bottom:12px" id="acRoleLabel">—</p>
+  <div class="rows" id="acPerms"></div>
+
+  <h3 class="sec gap">Report something</h3>
+  <p class="note" style="margin-bottom:14px">This report is anonymous. Your name and email are not attached, and it is sent to your chapter's leadership.</p>
+  <div class="field"><label for="rp1">What happened</label><textarea id="rp1" rows="4" placeholder="As much or as little as you want to say."></textarea></div>
+  <div class="field"><label for="rp2">Category</label><select id="rp2"><option>Conduct in a debate</option><option>Conduct outside a debate</option><option>Something about how the society is run</option><option>Something about a leader</option><option>Other</option></select></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+    <button class="btn gold" id="repbtn">Send anonymously</button>
+    <span class="quota" id="repnote">Nothing sent yet</span>
+  </div>
+</div></div>
+
+<!-- ---- CHAIR ---- -->
+<div class="page" id="chair" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k"><span id="chairRoom">TBD</span></div><h2>Chair's run sheet</h2>
+    <p>Chairing tonight: <b id="chairName">—</b>.</p></div>
+  <div class="console">
+    <div class="ctop"><span>Live</span><span class="tn" id="elapsed">00:00 / 29:30</span></div>
+    <div class="cbody">
+      <div class="cph" id="cph">Open</div>
+      <div class="cnow" id="cnow">Chair opens</div>
+      <div class="cnote" id="cnote">Topic, rules, format</div>
+      <div class="big tn" id="big" role="timer" aria-label="Time remaining in segment">1:00</div>
+      <div class="gcue" id="gcue" role="status" aria-live="assertive"></div>
+      <div class="ctrl">
+        <button class="cbtn p" id="play">Start</button>
+        <button class="cbtn" id="nextb">Next</button>
+        <button class="cbtn" id="reset">Reset</button>
+      </div>
+    </div>
+    <div class="cnext"><span>Next up</span><b id="upnext">Opening vote</b></div>
+  </div>
+  <div class="runlist" id="runlist"></div>
+  <p class="note" style="margin-top:16px">One strike: finish the sentence and conclude. Two strikes: time has ended. Timings are set in Admin.</p>
+
+  <div class="acard" style="margin-top:24px">
+    <div class="ahd"><span class="t">Live ballot</span><span class="n" id="ballotStageNote">No vote open</span></div>
+    <div class="abody">
+      <p class="note" style="margin-bottom:14px">Members vote from their own phone on the Home page while a stage is open. Nobody, including you, can see how any individual voted — only the totals below.</p>
+      <div id="ballotCounts" class="rows" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="openBefore">Open "before" vote</button>
+        <button class="btn" id="openAfter">Open "after" vote</button>
+        <button class="btn gh" id="closeVote">Close voting</button>
+        <button class="btn gold" id="markComplete">Mark meeting complete</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ---- ADMIN ---- -->
+<div class="page" id="admin" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="adminChapterK">Leaders only</div><h2>Admin</h2>
+    <p>Settings here apply to your chapter only.</p></div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Meeting formats & run sheet</span><span class="n" id="tnote">Applies to the Chair console</span></div>
+    <div class="abody">
+      <div class="tog" role="tablist" id="formatTabs" style="flex-wrap:wrap"></div>
+      <p class="note" id="formatSuited" style="margin-bottom:16px"></p>
+      <div id="ted"></div>
+      <div style="margin-top:10px">
+        <button class="btn gh" id="addSeg">+ Add segment</button>
+      </div>
+      <div class="tsum">
+        <span>Content <b id="tsc">29:30</b></span>
+        <span>Buffer <b id="tsb">10:30</b></span>
+        <span>Meeting <b id="tsMeeting">40:00</b></span>
+      </div>
+      <div class="gloss" id="chairNotesBox" style="display:none;margin-top:16px"></div>
+      <label style="display:flex;gap:8px;align-items:center;margin-top:16px;font-size:13.5px;color:var(--muted)">
+        <input type="checkbox" id="makeActive"> Use this format for the next meeting
+      </label>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="tsave">Save</button>
+        <button class="btn gh" id="tdefault">Restore this format's defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Anonymous reports</span><span class="n"><span id="repcount">2</span> unread</span></div>
+    <div class="abody" id="repbox"></div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Roster</span><span class="n" id="rosterCount">— members</span></div>
+    <div class="abody">
+      <div class="rst" id="rosterList">
+        <div class="mem"><span class="hd2">Member</span><span class="hd2">Role</span><span class="hd2 num">Floor</span><span class="hd2 num"></span></div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- ---- SETTINGS ---- -->
+<div class="page" id="settings" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="settingsChapterK">Leaders only</div><h2>Settings</h2>
+    <p>Set when each debate happens, when voting and submissions close, and other chapter-wide details. Changes apply as soon as you save.</p></div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Debate schedule</span><span class="n">6 upcoming meetings</span></div>
+    <div class="abody">
+      <div id="schedEd"></div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="schedSave">Save schedule</button>
+        <button class="btn gh" id="schedDefault">Restore default (every other Thursday)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Voting &amp; submissions</span><span class="n">For the next meeting's topic</span></div>
+    <div class="abody">
+      <div class="field"><label for="setVote">Shortlist voting closes</label><input id="setVote" type="datetime-local"></div>
+      <div class="field"><label for="setSub">Topic submissions close</label><input id="setSub" type="datetime-local"></div>
+      <button class="btn" id="setVoteSave">Save</button>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Meeting details</span><span class="n">Applies chapter-wide</span></div>
+    <div class="abody">
+      <div class="field"><label for="setRoom">Room</label><input id="setRoom" value="Room US 211"></div>
+      <div class="field"><label for="setLen">Meeting length (minutes)</label><input id="setLen" type="number" value="40" min="10">
+        <div class="h">The Chair console's buffer total in Admin is measured against this.</div></div>
+      <button class="btn" id="setMiscSave">Save</button>
+    </div>
+  </div>
+</div></div>
+
+<footer><div class="fw">
+  <span>N.C.S.</span>
+  <span><button id="footrep">Report something anonymously</button></span>
+</div></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+/* ---------- supabase ---------- */
+const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+
+/* ---------- state ----------
+   `profile` is null until a session is confirmed; S.auth/S.role are
+   derived from it everywhere below so the UI never has to trust
+   itself about who's signed in. */
+const S={auth:false,role:'member'};
+let profile=null, session=null;
+let CHAPTERS=[];               // loaded from the `chapters` table
+const SET={room:'Room US 211',lenMin:40};   // mirrors the signed-in leader's chapter row
+const $=id=>document.getElementById(id);
+
+/* ---------- timeline ----------
+   Every date on the site is derived from today, so the demo never goes stale.
+   MTG[0] is the next debate; meetings run every other Thursday at 7:00 PM. */
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOWF=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}  // DST-safe
+function nextThu(minDays){                        // first Thursday at least minDays out
+  const d=new Date();d.setHours(19,0,0,0);
+  d.setDate(d.getDate()+minDays);
+  d.setDate(d.getDate()+((4-d.getDay()+7)%7));    // 4 = Thursday
+  return d;
+}
+const MTG=[];{const f=nextThu(4);for(let k=0;k<6;k++)MTG.push(addDays(f,k*14))}
+const fShort=d=>DOW[d.getDay()]+' '+d.getDate()+' '+MON[d.getMonth()];
+const fLong =d=>DOW[d.getDay()]+' '+d.getDate()+' '+MONF[d.getMonth()];
+const fFull =d=>DOWF[d.getDay()]+' '+d.getDate()+' '+MONF[d.getMonth()];
+const fArc  =d=>d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear();
+const fDay  =d=>d.getDate()+' '+MONF[d.getMonth()];
+const fClock=d=>{const h=d.getHours();return (h%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+' '+(h<12?'AM':'PM')};
+let VOTE_CLOSE=addDays(MTG[0],9);    // shortlist ballot for Meeting 5 — editable in Settings
+let SUB_CLOSE =addDays(MTG[0],23);   // topic submissions for Meeting 6 — editable in Settings
+function calcSeason(){   // recomputed each call so it stays right if the schedule moves
+  const y=MTG[0].getFullYear(),s=MTG[0].getMonth()>=6?y:y-1;   // season rolls in July
+  return s+'–'+String(s+1).slice(2);
+}
+function toLocalInput(d){   // Date -> value a datetime-local input accepts
+  const p=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes());
+}
+
+function fillDates(){
+  const set=(id,t)=>{const e=$(id);if(e)e.textContent=t};
+  set('heroWhen',fLong(MTG[0])+', '+fClock(MTG[0]));
+  set('heroThesis','Selected speakers: submit your one-line thesis by '+fFull(addDays(MTG[0],-2))+
+    ', '+fClock(MTG[0])+'. A speaker who does not confirm is replaced by the reserve.');
+  document.querySelectorAll('[data-mt]').forEach(e=>e.textContent=fShort(MTG[+e.dataset.mt]));
+  set('schedVote','Voting closes '+fDay(VOTE_CLOSE));
+  set('schedSub1','Submissions close '+fDay(SUB_CLOSE));
+  set('schedSub2','Submissions open '+fDay(addDays(MTG[2],1)));
+  set('voteK','Closes '+fDay(VOTE_CLOSE));
+  set('subK','Open until '+fDay(SUB_CLOSE));
+  const chapterName=profile&&CHAPTERS.find(c=>c.id===profile.chapter_id);
+  set('schedSeason',calcSeason()+(chapterName?' · '+chapterName.name:''));
+}
+
+/* ---------- auth modal ---------- */
+const authModal=$('authModal');
+function showForm(mode){
+  const reg=mode==='reg';
+  $('signin').style.display=reg?'none':'block';
+  $('reg').style.display=reg?'block':'none';
+}
+let authReturn=null;   // send focus back where it came from
+function openAuth(mode){
+  authReturn=document.activeElement;
+  showForm(mode||'signin');
+  authModal.classList.add('on');
+  setTimeout(()=>{const f=mode==='reg'?$('n2'):$('e1');if(f)f.focus();},60);
+}
+function closeAuth(){
+  authModal.classList.remove('on');
+  if(authReturn&&document.contains(authReturn))authReturn.focus();
+  authReturn=null;
+}
+$('openSignin').onclick=()=>openAuth('signin');
+$('openJoin').onclick=()=>openAuth('reg');
+$('authX').onclick=closeAuth;
+authModal.onclick=e=>{if(e.target===authModal)closeAuth()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&authModal.classList.contains('on'))closeAuth()});
+$('toreg').onclick=()=>showForm('reg');
+$('tosignin').onclick=()=>showForm('signin');
+$('ctaJoin').onclick=()=>openAuth('reg');
+$('aboutReq').onclick=()=>openAuth('reg');
+$('aboutJoin').onclick=()=>openAuth('reg');
+$('splashJoin').onclick=()=>openAuth('reg');
+$('splashAbout').onclick=()=>go('about');
+
+/* ---------- session ----------
+   Real accounts now: sb.auth holds the Supabase session, and
+   `profile` is that user's row from `profiles` (role, chapter,
+   name — all enforced server-side by the RLS policies in
+   supabase/schema.sql, not by anything in this file). */
+function showAuthErr(id,msg){const e=$(id);e.textContent=msg;e.style.display='block'}
+function hideAuthErrs(){['signinErr','regErr'].forEach(id=>{const e=$(id);e.style.display='none'})}
+
+async function loadChapters(){
+  const {data,error}=await sb.from('chapters').select('id,name,location,status,room,lat,lng').order('name');
+  if(error){console.error(error);return}
+  CHAPTERS=data||[];
+  const sel=$('s2');
+  sel.innerHTML=CHAPTERS.map(c=>'<option value="'+c.id+'">'+c.name+(c.location?' — '+c.location:'')+'</option>').join('')
+    +'<option value="__req">Request a chapter (my school isn\'t listed)</option>';
+  const mt=$('arcMineTab'); if(mt&&CHAPTERS[0]) mt.textContent=CHAPTERS[0].name;
+  renderArc('mine');
+  CH=CHAPTERS;
+  $('chlist').innerHTML=CH.length?CH.map(chcard).join(''):'<p class="note">No chapters yet.</p>';
+  document.querySelectorAll('.ch').forEach(e=>e.onclick=()=>sel(e.dataset.ch));
+  try{ if(window.d3&&window.topojson) renderMap(); else mapFail() }catch(e){ mapFail() }
+}
+
+async function loadStats(){
+  const {data,error}=await sb.from('public_stats').select('*').single();
+  if(error){console.error('public_stats view missing — run supabase/migration_2_stats.sql',error);return}
+  $('statChapters').textContent=data.active_chapters;
+  $('statMembers').textContent=data.total_members;
+  $('statDebates').textContent=data.debates_held;
+}
+
+async function loadProfile(userId){
+  const {data,error}=await sb.from('profiles').select('*').eq('id',userId).single();
+  if(error){console.error(error);return null}
+  return data;
+}
+
+async function refreshSession(){
+  const {data:{session:s}}=await sb.auth.getSession();
+  session=s;
+  profile = session ? await loadProfile(session.user.id) : null;
+  S.auth=!!profile;
+  S.role=profile?profile.role:'member';
+  applyAuth();
+}
+
+$('dosignin').onclick=async function(){
+  hideAuthErrs();
+  const email=$('e1').value.trim(), password=$('p1').value;
+  if(!email||!password){showAuthErr('signinErr','Enter your email and password.');return}
+  this.textContent='Signing in…';
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  this.textContent='Sign in';
+  if(error){showAuthErr('signinErr',error.message);return}
+  await refreshSession();
+  closeAuth();go('home');window.scrollTo(0,0);
+};
+
+$('doreg').onclick=async function(){
+  hideAuthErrs();
+  const full_name=$('n2').value.trim(), email=$('e2').value.trim();
+  const chapter_id=$('s2').value, password=$('p2').value;
+  if(!full_name||!email||!password){showAuthErr('regErr','Fill in your name, email, and a password.');return}
+  if(password.length<8){showAuthErr('regErr','Password needs to be at least 8 characters.');return}
+  if(chapter_id==='__req'){
+    const school=prompt('Name of your school, so we can start a chapter there:');
+    if(school) await sb.from('chapter_requests').insert({school_name:school,requested_by_name:full_name,requested_by_email:email});
+    showAuthErr('regErr','Chapter request sent. You can still create an account below once a chapter exists — for now, ask N.C.S. to follow up.');
+    return;
+  }
+  this.textContent='Creating…';
+  const {error}=await sb.auth.signUp({email,password,options:{data:{full_name,chapter_id}}});
+  this.textContent='Create account';
+  if(error){showAuthErr('regErr',error.message);return}
+  const {data:{session:s}}=await sb.auth.getSession();
+  if(s){ await refreshSession(); closeAuth(); go('home'); }
+  else { showAuthErr('regErr','Account created — check your email to confirm it, then sign in.'); showForm('signin'); }
+};
+
+/* ---------- "view as" — a national admin can preview the site as a
+   leader or a member without changing their real stored role. It's
+   cosmetic only: RLS still grants them national_admin's real
+   permissions no matter what this is set to. ---------- */
+let VIEW_AS=null;
+function effectiveRole(){ return (profile&&profile.role==='national_admin'&&VIEW_AS) ? VIEW_AS : (profile?profile.role:S.role); }
+
+function applyAuth(){
+  const on=S.auth, role=effectiveRole(), lead=on&&(role==='leader'||role==='national_admin');
+  $('guestbar').style.display=on?'none':'';
+  $('userbar').style.display=on?'':'none';
+  document.querySelectorAll('nav .mbr').forEach(b=>b.style.display=on?'':'none');
+  document.querySelectorAll('nav .ldr').forEach(b=>b.style.display=lead?'':'none');
+  const chapterName=profile&&CHAPTERS.find(c=>c.id===profile.chapter_id);
+  $('chname').textContent=on?(chapterName?chapterName.name:'Your chapter'):'United States';
+  $('homeGuest').style.display=on?'none':'';
+  $('homeMember').style.display=on?'':'none';
+  if(on){
+    $('uname').textContent=profile.full_name;
+    $('urole').textContent=profile.office||(lead?'Leader':'Member');
+    $('uview').textContent=role;
+    const vw=$('viewAsWrap');
+    if(profile.role==='national_admin'){ vw.style.display=''; $('viewAsSel').value=VIEW_AS||'national_admin'; }
+    else vw.style.display='none';
+    loadChapterSettings();   // read-only for everyone; only leaders can save changes (enforced by RLS)
+    if(lead){loadReports();loadRoster();}
+  }
+  const cur=document.querySelector('nav button[aria-selected="true"]');
+  if(cur){
+    const needAuth=cur.classList.contains('mbr')||cur.classList.contains('ldr');
+    const needLead=cur.classList.contains('ldr');
+    if((needAuth&&!on)||(needLead&&!lead)){halt();go('home')}   // never leave the debate clock running
+  }
+}
+$('viewAsSel').onchange=function(){ VIEW_AS=this.value; applyAuth(); go('home'); };
+$('logout').onclick=async()=>{
+  halt();                       // never leave a debate clock running after sign-out
+  await sb.auth.signOut();
+  session=null;profile=null;S.auth=false;S.role='member';VIEW_AS=null;
+  applyAuth();go('home');showForm('signin');
+  window.scrollTo(0,0);
+};
+sb.auth.onAuthStateChange((_event,_s)=>{ refreshSession(); });
+
+/* ---------- nav ---------- */
+function go(p){
+  const btn=document.querySelector('nav button[data-p="'+p+'"]');
+  const isLead=S.auth&&(effectiveRole()==='leader'||effectiveRole()==='national_admin');
+  if(btn){
+    if(btn.classList.contains('ldr')&&!isLead){openAuth('signin');return}
+    if(btn.classList.contains('mbr')&&!S.auth){openAuth('signin');return}
+  }
+  document.querySelectorAll('nav button').forEach(x=>{
+    const sel=x.dataset.p===p;
+    x.setAttribute('aria-selected',sel?'true':'false');
+    x.tabIndex=sel?0:-1;               // roving tabindex, as a tablist expects
+  });
+  document.querySelectorAll('.page').forEach(x=>x.classList.toggle('on',x.id===p));
+  if(p==='vote')loadVotePage();
+  if(p==='submit')refreshSubQuota();
+  if(p==='account')loadAccountPage();
+  if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name;refreshCurrentMeeting().then(renderChairBallot)}
+  if(p==='home'&&profile)refreshCurrentMeeting().then(renderLiveBallot);
+  if(p==='admin'&&isLead){loadReports();loadRoster();}
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('nav button').forEach(b=>{
+  b.id='tab-'+b.dataset.p;
+  b.setAttribute('aria-controls',b.dataset.p);
+  b.tabIndex=b.getAttribute('aria-selected')==='true'?0:-1;
+  const panel=$(b.dataset.p);
+  if(panel)panel.setAttribute('aria-labelledby',b.id);
+  b.onclick=()=>go(b.dataset.p);
+});
+$('nav').addEventListener('keydown',e=>{
+  const k={ArrowLeft:-1,ArrowRight:1,Home:'first',End:'last'}[e.key];
+  if(k===undefined)return;
+  const tabs=[...document.querySelectorAll('nav button')].filter(b=>b.offsetParent!==null);
+  const at=tabs.indexOf(document.activeElement);
+  if(at<0)return;
+  e.preventDefault();
+  const to=k==='first'?0:k==='last'?tabs.length-1:(at+k+tabs.length)%tabs.length;
+  tabs[to].focus();go(tabs[to].dataset.p);
+});
+document.querySelectorAll('[data-goto]').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.goto)});
+$('footrep').onclick=()=>{ if(!S.auth){openAuth('signin');return} go('account');setTimeout(()=>$('rp1').focus(),80) };
+
+/* ---------- countdown ---------- */
+setInterval(tickCd,30000);
+function tickCd(){
+  const d=MTG[0]-new Date();
+  $('cd').textContent = d<=0?'Tonight':
+    Math.floor(d/864e5)+'d '+Math.floor(d%864e5/36e5)+'h '+Math.floor(d%36e5/6e4)+'m';
+}
+tickCd();
+
+/* ---------- vote (shortlist: which submitted motion runs next) ---------- */
+async function loadVotePage(){
+  if(!profile){return}
+  const {data:motions,error}=await sb.from('motions')
+    .select('id,claim,rationale,submitted_by,profiles(full_name)')
+    .eq('chapter_id',profile.chapter_id).eq('shortlisted',false)
+    .order('created_at',{ascending:false});
+  if(error){$('voteList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
+  const {data:mine}=await sb.from('shortlist_votes').select('motion_id').eq('voter_id',profile.id);
+  const myPick=mine&&mine[0]?mine[0].motion_id:null;
+  if(!motions||!motions.length){$('voteList').innerHTML='<p class="note">Nothing open to vote on right now.</p>';return}
+  $('voteList').innerHTML=motions.map(m=>
+    '<div class="opt'+(m.id===myPick?' picked':'')+'" data-opt="'+m.id+'"><div class="b">'+
+    '<div class="by">Submitted by '+(m.profiles?m.profiles.full_name:'a member')+'</div>'+
+    '<div class="m">'+m.claim+'</div>'+
+    (m.rationale?'<div class="r">'+m.rationale+'</div>':'')+
+    '</div><button class="btn'+(m.id===myPick?' on':'')+'" data-vote="'+m.id+'">'+(m.id===myPick?'Voted':'Vote')+'</button></div>'
+  ).join('');
+  document.querySelectorAll('#voteList [data-vote]').forEach(btn=>btn.onclick=async()=>{
+    const motionId=btn.dataset.vote;
+    btn.disabled=true;
+    await sb.from('shortlist_votes').delete().eq('voter_id',profile.id);   // one active pick at a time
+    if(motionId!==myPick) await sb.from('shortlist_votes').insert({motion_id:motionId,voter_id:profile.id});
+    btn.disabled=false;
+    loadVotePage();
+  });
+}
+
+/* ---------- submit a topic ---------- */
+async function refreshSubQuota(){
+  if(!profile)return;
+  const {count}=await sb.from('motions').select('id',{count:'exact',head:true})
+    .eq('submitted_by',profile.id).eq('shortlisted',false);
+  $('subquota').textContent=(count||0)+' of 2 submissions used this cycle';
+}
+$('subbtn').onclick=async function(){
+  if(!profile)return;
+  const claim=$('m1').value.trim(), rationale=$('m2').value.trim();
+  if(!claim){$('m1').focus();return}
+  this.disabled=true;this.textContent='Submitting…';
+  const {error}=await sb.from('motions').insert({chapter_id:profile.chapter_id,submitted_by:profile.id,claim,rationale});
+  this.disabled=false;
+  if(error){this.textContent='Submit';alert(error.message);return}
+  this.textContent='Submitted';this.classList.add('gh');
+  $('m1').value='';$('m2').value='';
+  setTimeout(()=>{this.textContent='Submit';this.classList.remove('gh')},1400);
+  refreshSubQuota();
+};
+
+/* ---------- anonymous reports ---------- */
+$('repbtn').onclick=async function(){
+  if(!profile)return;
+  const body=$('rp1').value.trim(), category=$('rp2').value;
+  if(!body){$('rp1').focus();return}
+  this.disabled=true;this.textContent='Sending…';
+  // client generates the id itself: members can't read reports back
+  // (leader-only, by design), so this is how we learn the id to
+  // notify about without weakening that read policy.
+  const id=crypto.randomUUID();
+  const {error}=await sb.from('reports').insert({id,chapter_id:profile.chapter_id,category,body});
+  this.disabled=false;this.textContent='Send anonymously';
+  if(error){alert(error.message);return}
+  sb.functions.invoke('notify-report',{body:{report_id:id}}).catch(()=>{});
+  $('rp1').value='';$('repnote').textContent='Report sent anonymously';
+};
+
+/* ---------- archive ---------- */
+/* `off` is days before the next debate, so the archive stays recent as time passes. */
+function bar(v,gh){return '<div class="tr'+(gh?' gh':'')+'"><div class="ff" style="width:'+v[0]+'%"></div><div class="fa" style="width:'+v[1]+'%"></div></div>'}
+async function renderArc(scope){
+  const chapterId=(profile&&profile.chapter_id)||(CHAPTERS[0]&&CHAPTERS[0].id);
+  let q=sb.from('meetings').select('id,scheduled_at,chapter_id,motions!meetings_motion_fk(claim),chapters(name)')
+    .eq('status','completed').order('scheduled_at',{ascending:false});
+  if(scope!=='all'&&chapterId) q=q.eq('chapter_id',chapterId);
+  const {data:meetings,error}=await q;
+  if(error||!meetings||!meetings.length){$('arclist').innerHTML='<p class="note">No debates recorded yet — results appear here once a meeting is marked complete with its ballot counted.</p>';return}
+  const ids=meetings.map(m=>m.id);
+  const {data:results}=await sb.from('meeting_ballot_results').select('*').in('meeting_id',ids);
+  $('arclist').innerHTML=meetings.map(m=>{
+    const rows=(results||[]).filter(r=>r.meeting_id===m.id);
+    const pct=(stage,side)=>{const tot=rows.filter(r=>r.stage===stage).reduce((s,r)=>s+r.votes,0);const v=rows.find(r=>r.stage===stage&&r.side===side);return tot?Math.round(100*(v?v.votes:0)/tot):0};
+    const b=[pct('before','for'),pct('before','against')], a=[pct('after','for'),pct('after','against')];
+    const totalVotes=rows.filter(r=>r.stage==='after').reduce((s,r)=>s+r.votes,0);
+    const sh=a[0]-b[0], toFor=sh>0, amt=Math.abs(sh);
+    const minority=(toFor?a[0]:a[1])<50;
+    const claim=m.motions?m.motions.claim:'Untitled debate';
+    return '<div class="dv"><div class="dh"><div class="m">'+claim+'</div>'+
+      '<div style="display:flex;gap:10px;align-items:center">'+(scope==='all'&&m.chapters?'<span class="chip">'+m.chapters.name+'</span>':'')+
+      '<span class="dt">'+fArc(new Date(m.scheduled_at))+' · '+totalVotes+' voting</span></div></div>'+
+      '<div class="bars"><div class="bl2">Before</div>'+bar(b,1)+'<div class="bn tn">'+b[0]+' / '+b[1]+'</div>'+
+      '<div class="bl2">After</div>'+bar(a,0)+'<div class="bn tn">'+a[0]+' / '+a[1]+'</div>'+
+      '<div class="dl"><span class="amt" style="color:'+(toFor?'var(--navy)':'var(--cl)')+'">'+
+      (toFor?'← '+amt+' points':amt+' points →')+'</span><span style="color:var(--faint)">to '+(toFor?'For':'Against')+'</span>'+
+      '<span class="won '+(toFor?'f':'a')+'">'+(toFor?'For':'Against')+' wins</span>'+
+      (minority?'<span class="won min">Minority win</span>':'')+'</div></div></div>';
+  }).join('');
+}
+document.querySelectorAll('.tog button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tog button').forEach(x=>x.setAttribute('aria-selected','false'));
+  b.setAttribute('aria-selected','true');renderArc(b.dataset.sc);
+});
+renderArc('mine');
+
+/* ---------- chapters (real rows from Supabase — no invented schools) ---------- */
+const SEASON=calcSeason();
+let CH=[];
+const cls={founding:'founding',active:'',pending:'pend',inquiry:'inq'};
+const statusLabel={founding:'Founding',active:'Active',pending:'Pending',inquiry:'Inquiry'};
+
+function renderMap(){
+  $('wamap').innerHTML='';
+  const proj=d3.geoAlbersUsa().scale(1100).translate([450,280]);
+  const gp=d3.geoPath(proj);
+  const svg=d3.select('#wamap').append('svg').attr('viewBox','0 0 900 560').attr('width','100%')
+    .attr('class','mp').attr('role','img').attr('aria-label','Map of National Civic Society chapters across the United States');
+  svg.append('title').text('National Civic Society chapters across the United States');
+  d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json').then(us=>{
+    svg.append('g').selectAll('path').data(topojson.feature(us,us.objects.states).features)
+      .join('path').attr('d',gp).attr('class','st-out');
+    const layer=svg.append('g');
+    CH.forEach(c=>{
+      if(c.lat==null||c.lng==null) return;
+      const p=proj([c.lng,c.lat]); if(!p) return;
+      const g=layer.append('g').attr('class','dot '+cls[c.status]).style('cursor','pointer').on('click',()=>sel(c.id));
+      g.append('circle').attr('class','c').attr('cx',p[0]).attr('cy',p[1]).attr('r',c.status==='founding'?8:6);
+      g.append('title').text(c.name+(c.location?' · '+c.location:''));
+      g.append('text').attr('x',p[0]+11).attr('y',p[1]+4).attr('text-anchor','start').text(c.name);
+    });
+  }).catch(mapFail);
+}
+function mapFail(){
+  $('wamap').innerHTML='<div class="maperr">Map unavailable. Every chapter is listed below.</div>';
+  const lg=$('maplegend'); if(lg) lg.style.display='none';
+}
+function chcard(c){
+  return '<div class="ch" data-ch="'+c.id+'"><div class="n">'+c.name+'</div><div class="l">'+(c.location||'')+'</div>'+
+    '<span class="st '+cls[c.status]+'">'+statusLabel[c.status]+'</span></div>';
+}
+function sel(id){
+  const c=CH.find(x=>x.id===id);
+  document.querySelectorAll('.ch').forEach(e=>e.classList.toggle('sel',e.dataset.ch===id));
+  const h='<div class="ph gap"><div class="k">'+(c.location||'')+'</div><h2>'+c.name+'</h2>'+
+    '<p>'+statusLabel[c.status]+' chapter.'+(c.room?' Meets in '+c.room+'.':'')+'</p></div>';
+  $('chdetail').innerHTML=h;
+  $('chdetail').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('chReqBtn').onclick=()=>openAuth('reg');
+
+/* ---------- run sheet & meeting formats ----------
+   Five formats total: the standard 40-minute debate plus four
+   alternative structures a chapter can switch to. Each chapter
+   stores its own copy (with any edits) in chapters.run_sheet. */
+const FORMATS_DEFAULT={
+  main:{
+    label:'Main format',
+    suited:'The standard 40-minute debate set out in the Standing Orders. Use this unless one of the alternatives below fits better.',
+    chairNotes:[],
+    segments:[
+      {n:'Chair opens',d:60,ph:'Open',note:'Topic, rules, format'},
+      {n:'Opening vote',d:60,ph:'Open',note:'QR on the board, wait for the count'},
+      {n:'For opening',d:120,ph:'Open',note:'No crosstalk',stop:1},
+      {n:'Against opening',d:120,ph:'Open',note:'No crosstalk',stop:1},
+      {n:'Open forum',d:360,ph:'Contest',note:'Nobody speaks twice in a row'},
+      {n:'Floor round 1',d:135,ph:'Contest',note:'Three contributions, 45s each. Two are primed',stop:1},
+      {n:'Open forum',d:360,ph:'Contest',note:'Mark the pivot first. Floor points in play.'},
+      {n:'Floor round 2',d:135,ph:'Contest',note:'Three contributions, 45s each',stop:1},
+      {n:'Open forum',d:180,ph:'Contest',note:'Last exchange'},
+      {n:'Against closing',d:60,ph:'Decide',stop:2},
+      {n:'For closing',d:60,ph:'Decide',note:'They made the claim, they close',stop:2},
+      {n:'Final vote',d:120,ph:'Decide',note:'Announce the shift out loud'}
+    ]
+  },
+  one_on_one:{
+    label:'One on one',
+    suited:'Suited to: a topic that divides cleanly in two, or a meeting with low attendance. Two members, one topic, no teams.',
+    chairNotes:[
+      'With two members there is nowhere to hide, so an uneven pairing is conspicuous. Pair members of comparable ability.',
+      'The more forceful speaker takes over quickly. Intervene where one member is being talked over.'
+    ],
+    segments:[
+      {n:'First vote',d:60,ph:'Open'},
+      {n:'First speaker',d:90,ph:'Open',note:'States their case without interruption',stop:1},
+      {n:'Second speaker',d:90,ph:'Open',note:'States their case without interruption',stop:1},
+      {n:'Direct exchange',d:480,ph:'Contest',note:'Eight minutes of direct exchange'},
+      {n:'Floor round',d:180,ph:'Contest',note:'Four contributions, 45s each',stop:1},
+      {n:'Responding to the floor',d:240,ph:'Contest',note:'Four minutes responding to floor points'},
+      {n:'First closing',d:45,ph:'Decide',stop:2},
+      {n:'Second closing',d:45,ph:'Decide',stop:2},
+      {n:'Final vote',d:60,ph:'Decide'}
+    ]
+  },
+  three_on_three:{
+    label:'Three on three',
+    suited:'Suited to: a topic with several distinct arguments on each side, or a meeting with high attendance. Larger teams, greater structure, no open forum.',
+    chairNotes:[
+      'Assign each member a distinct argument in advance, or all three will make the same point.',
+      'The third speaker on each side is typically the least prepared and the first to be cut where time runs short.',
+      'This is the most straightforward structure for a new chair to run.'
+    ],
+    segments:[
+      {n:'First vote',d:60,ph:'Open'},
+      {n:'Speaker 1 · For',d:120,ph:'Open',stop:1},
+      {n:'Speaker 1 · Against',d:120,ph:'Open',stop:1},
+      {n:'Speaker 2 · For',d:120,ph:'Contest',stop:1},
+      {n:'Speaker 2 · Against',d:120,ph:'Contest',stop:1},
+      {n:'Speaker 3 · For',d:120,ph:'Contest',stop:1},
+      {n:'Speaker 3 · Against',d:120,ph:'Contest',stop:1},
+      {n:'Floor round',d:180,ph:'Contest',note:'Four contributions',stop:1},
+      {n:'For team exchange',d:180,ph:'Contest',note:'Three minutes of open exchange'},
+      {n:'Against team exchange',d:180,ph:'Contest',note:'Three minutes of open exchange'},
+      {n:'Against closing',d:60,ph:'Decide',stop:2},
+      {n:'For closing',d:60,ph:'Decide',stop:2},
+      {n:'Final vote',d:60,ph:'Decide'}
+    ]
+  },
+  agree_disagree:{
+    label:'Agree to disagree',
+    suited:'Suited to: topics where the disagreement concerns degree rather than a binary position. Members position themselves along a line according to how much they agree.',
+    chairNotes:[
+      'Prepare the statements in advance, escalating each one. The first should be easy to accept and the last should divide the room.',
+      'Asking a member who moved why they moved is the most productive question in this format.',
+      'The format should not be reduced to a show of hands. Members must physically take a position.'
+    ],
+    segments:[
+      {n:'Statement 1',d:360,ph:'Open',note:'Chair reads the statement; members take a position along the line'},
+      {n:'Statement 2',d:360,ph:'Contest',note:'A more demanding version of the statement'},
+      {n:'Statement 3',d:360,ph:'Contest'},
+      {n:'Statement 4',d:360,ph:'Contest'},
+      {n:'Statement 5',d:360,ph:'Decide',note:'The most demanding version — should divide the room'}
+    ]
+  },
+  open_discussion:{
+    label:'Open discussion',
+    suited:'Suited to: a meeting where preparation has fallen through, or a question carried over from the previous debate. One topic, no assigned speakers and no sides.',
+    chairNotes:[
+      'Prepare some questions in advance if possible to sustain the conversation.',
+      'The discussion will drift toward the three most forceful members. Call on others by name early.'
+    ],
+    segments:[
+      {n:'First vote',d:60,ph:'Open'},
+      {n:'Open discussion',d:1800,ph:'Contest',note:'Chair opens the floor and moderates. Any member may speak as often as they wish.'},
+      {n:'Final vote',d:60,ph:'Decide'}
+    ]
+  }
+};
+let FORMATS=JSON.parse(JSON.stringify(FORMATS_DEFAULT));
+let ACTIVE_FORMAT='main', EDIT_FORMAT='main';
+let SEG=FORMATS[ACTIVE_FORMAT].segments;
+let i=0,left=SEG[0].d,running=false,timer=null;
+const fmt=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const fmt2=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const total=()=>SEG.reduce((a,s)=>a+s.d,0);
+
+function buildList(){
+  let t=0;
+  $('runlist').innerHTML=SEG.map((s,k)=>{
+    const mk=s.stop===1?'|':s.stop===2?'||':'';
+    const h='<div class="rr" data-k="'+k+'"><div class="rt2 tn">'+fmt(t)+'</div>'+
+      '<div class="rl2">'+(mk?'<span class="mk">'+mk+'</span>':'')+s.n+'</div>'+
+      '<div class="rd2 tn">'+fmt(s.d)+'</div></div>';
+    t+=s.d;return h;
+  }).join('');
+  document.querySelectorAll('.rr').forEach(r=>r.onclick=()=>seek(+r.dataset.k));
+}
+function paint(){
+  const s=SEG[i];
+  $('cph').textContent=s.ph;$('cnow').textContent=s.n;$('cnote').textContent=s.note||'';
+  const big=$('big');big.textContent=fmt(left);big.classList.toggle('warn',left<=10);
+  $('upnext').textContent=SEG[i+1]?SEG[i+1].n:'Debate ends';
+  let e=0;for(let k=0;k<i;k++)e+=SEG[k].d;
+  $('elapsed').textContent=fmt2(e+(SEG[i].d-left))+' / '+fmt2(total());
+  const g=$('gcue');
+  g.textContent = left<=10&&s.stop===1 ? '| One strike. Wrap it'
+    : left<=10&&s.stop===2 ? '|| Two strikes. Done' : '';
+  document.querySelectorAll('.rr').forEach(r=>{
+    const k=+r.dataset.k;r.classList.toggle('cur',k===i);r.classList.toggle('done',k<i);
+  });
+}
+function tick(){ if(left>0){left--;paint()} else {$('gcue').textContent='|| Two strikes. Done';halt()} }
+function run(){running=true;timer=setInterval(tick,1000);$('play').textContent='Pause'}
+function halt(){running=false;clearInterval(timer);$('play').textContent='Start'}
+function seek(k){halt();i=Math.max(0,Math.min(SEG.length-1,k));left=SEG[i].d;paint()}
+$('play').onclick=()=>running?halt():run();
+$('nextb').onclick=()=>{if(i<SEG.length-1)seek(i+1)};
+$('reset').onclick=()=>seek(0);
+
+/* ---------- admin: meeting-format switcher & run-sheet editor ---------- */
+function buildFormatTabs(){
+  $('formatTabs').innerHTML=Object.keys(FORMATS).map(key=>
+    '<button role="tab" aria-selected="'+(key===EDIT_FORMAT?'true':'false')+'" data-fmt="'+key+'">'+FORMATS[key].label+(key===ACTIVE_FORMAT?' ✓':'')+'</button>'
+  ).join('');
+  document.querySelectorAll('#formatTabs button').forEach(b=>b.onclick=()=>{EDIT_FORMAT=b.dataset.fmt;buildEd()});
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
+function buildEd(){
+  buildFormatTabs();
+  const f=FORMATS[EDIT_FORMAT];
+  $('formatSuited').textContent=f.suited||'';
+  $('makeActive').checked=(EDIT_FORMAT===ACTIVE_FORMAT);
+  const cb=$('chairNotesBox');
+  if(f.chairNotes&&f.chairNotes.length){cb.style.display='';cb.innerHTML='<b>Notes for the chair</b><br>'+f.chairNotes.map(n=>'• '+n).join('<br>')}
+  else cb.style.display='none';
+  $('ted').innerHTML=f.segments.map((s,k)=>{
+    const mk=s.stop===1?'|':s.stop===2?'||':'';
+    return '<div class="fmtrow">'+
+      '<button class="fbtn" data-up="'+k+'" title="Move up">↑</button>'+
+      '<button class="fbtn" data-down="'+k+'" title="Move down">↓</button>'+
+      (mk?'<span class="mk">'+mk+'</span>':'')+
+      '<input class="fn" data-namek="'+k+'" value="'+esc(s.n)+'" placeholder="Segment name">'+
+      '<input class="fd" data-notek="'+k+'" value="'+esc(s.note)+'" placeholder="Description">'+
+      '<input class="fdur" data-durk="'+k+'" value="'+fmt(s.d)+'">'+
+      '<select data-stopk="'+k+'">'+
+        '<option value=""'+(!s.stop?' selected':'')+'>No mark</option>'+
+        '<option value="1"'+(s.stop===1?' selected':'')+'>One strike</option>'+
+        '<option value="2"'+(s.stop===2?' selected':'')+'>Two strikes</option>'+
+      '</select>'+
+      '<button class="fbtn" data-delk="'+k+'" title="Delete segment">×</button>'+
+    '</div>';
+  }).join('');
+  document.querySelectorAll('#ted [data-durk]').forEach(inp=>inp.oninput=recalc);
+  document.querySelectorAll('#ted [data-namek]').forEach(inp=>inp.oninput=e=>{f.segments[+e.target.dataset.namek].n=e.target.value});
+  document.querySelectorAll('#ted [data-notek]').forEach(inp=>inp.oninput=e=>{f.segments[+e.target.dataset.notek].note=e.target.value});
+  document.querySelectorAll('#ted [data-stopk]').forEach(sel=>sel.onchange=e=>{f.segments[+e.target.dataset.stopk].stop=e.target.value?+e.target.value:undefined});
+  document.querySelectorAll('#ted [data-up]').forEach(b=>b.onclick=()=>moveSeg(+b.dataset.up,-1));
+  document.querySelectorAll('#ted [data-down]').forEach(b=>b.onclick=()=>moveSeg(+b.dataset.down,1));
+  document.querySelectorAll('#ted [data-delk]').forEach(b=>b.onclick=()=>{
+    if(f.segments.length<=1)return;
+    f.segments.splice(+b.dataset.delk,1);buildEd();
+  });
+  recalc();
+}
+function moveSeg(k,dir){
+  const f=FORMATS[EDIT_FORMAT], j=k+dir;
+  if(j<0||j>=f.segments.length)return;
+  [f.segments[k],f.segments[j]]=[f.segments[j],f.segments[k]];
+  buildEd();
+}
+$('addSeg').onclick=()=>{FORMATS[EDIT_FORMAT].segments.push({n:'New segment',d:60,ph:'Contest'});buildEd()};
+function parseT(v){
+  const p=String(v).split(':');
+  if(p.length===2){const m=+p[0],s=+p[1];if(!isNaN(m)&&!isNaN(s))return m*60+s}
+  const n=+v;return isNaN(n)?null:n;
+}
+function recalc(){
+  let t=0,bad=false;
+  document.querySelectorAll('#ted [data-durk]').forEach(inp=>{
+    const v=parseT(inp.value);
+    if(v===null||v<5){bad=true;inp.style.borderColor='var(--cl)'}
+    else{inp.style.borderColor='';t+=v}
+  });
+  const buf=SET.lenMin*60-t;
+  $('tsc').textContent=fmt2(t);
+  const b=$('tsb');b.textContent=(buf<0?'−':'')+fmt2(Math.abs(buf));
+  b.classList.toggle('over',buf<0);
+  $('tnote').textContent = bad ? 'Check the highlighted fields'
+    : buf<0 ? 'Over the '+SET.lenMin+'-minute meeting' : 'Applies to the Chair console';
+}
+$('tsave').onclick=async function(){
+  if(!profile)return;
+  let ok=true;
+  document.querySelectorAll('#ted [data-durk]').forEach(inp=>{
+    const v=parseT(inp.value);
+    if(v===null||v<5){ok=false;return}
+    FORMATS[EDIT_FORMAT].segments[+inp.dataset.durk].d=v;
+  });
+  if(!ok){recalc();return}
+  if($('makeActive').checked) ACTIVE_FORMAT=EDIT_FORMAT;
+  SEG=FORMATS[ACTIVE_FORMAT].segments;
+  halt();i=0;left=SEG[0].d;buildList();paint();
+  this.textContent='Saving…';
+  const {error}=await sb.from('chapters').update({run_sheet:{active:ACTIVE_FORMAT,formats:FORMATS}}).eq('id',profile.chapter_id);
+  this.textContent=error?'Save':'Saved';
+  buildEd();
+  if(!error) setTimeout(()=>{this.textContent='Save'},1200);
+  if(error) alert(error.message);
+};
+$('tdefault').onclick=()=>{
+  FORMATS[EDIT_FORMAT]=JSON.parse(JSON.stringify(FORMATS_DEFAULT[EDIT_FORMAT]));
+  if(EDIT_FORMAT===ACTIVE_FORMAT){SEG=FORMATS[ACTIVE_FORMAT].segments;halt();i=0;left=SEG[0].d;buildList();paint()}
+  buildEd();
+};
+
+/* ---------- settings (persisted per-chapter in Supabase) ---------- */
+let CHAPTER_MEETINGS=[];   // the real meeting rows behind the schedule editor
+function buildSchedEd(){
+  $('schedEd').innerHTML=MTG.map((d,k)=>
+    '<div class="sed"><div class="nm2">Meeting '+(k+1)+'</div>'+
+    '<input type="datetime-local" data-k="'+k+'" value="'+toLocalInput(d)+'"></div>'
+  ).join('');
+}
+$('schedSave').onclick=async function(){
+  if(!profile)return;
+  let ok=true; const vals=[];
+  document.querySelectorAll('#schedEd input').forEach(inp=>{
+    if(!inp.value){ok=false;inp.style.borderColor='var(--cl)';return}
+    inp.style.borderColor='';
+    vals[+inp.dataset.k]=new Date(inp.value);
+  });
+  if(!ok)return;
+  this.textContent='Saving…';
+  // re-fetch fresh (never trust the in-memory cache for this) so two
+  // saves in a row update the same rows instead of creating duplicates
+  const {data:existingRows}=await sb.from('meetings').select('id').eq('chapter_id',profile.chapter_id)
+    .neq('status','completed').order('scheduled_at').limit(vals.length);
+  for(let k=0;k<vals.length;k++){
+    const existing=(existingRows||[])[k];
+    if(existing) await sb.from('meetings').update({scheduled_at:vals[k].toISOString()}).eq('id',existing.id);
+    else await sb.from('meetings').insert({chapter_id:profile.chapter_id,scheduled_at:vals[k].toISOString()});
+    MTG[k]=vals[k];
+  }
+  await loadChapterSettings();
+  fillDates();
+  this.textContent='Saved';setTimeout(()=>this.textContent='Save schedule',1200);
+};
+$('schedDefault').onclick=function(){
+  const f=nextThu(4);
+  for(let k=0;k<MTG.length;k++) MTG[k]=addDays(f,k*14);
+  buildSchedEd();fillDates();
+};
+$('setVoteSave').onclick=async function(){
+  if(!profile)return;
+  if($('setVote').value) VOTE_CLOSE=new Date($('setVote').value);
+  if($('setSub').value)  SUB_CLOSE =new Date($('setSub').value);
+  fillDates();
+  this.textContent='Saving…';
+  await sb.from('chapters').update({vote_close:VOTE_CLOSE.toISOString(),sub_close:SUB_CLOSE.toISOString()}).eq('id',profile.chapter_id);
+  this.textContent='Saved';setTimeout(()=>this.textContent='Save',1200);
+};
+$('setMiscSave').onclick=async function(){
+  if(!profile)return;
+  SET.room=$('setRoom').value.trim()||SET.room;
+  const len=+$('setLen').value;
+  if(len>=10) SET.lenMin=len;
+  applySettings();
+  this.textContent='Saving…';
+  await sb.from('chapters').update({room:SET.room,meeting_length_min:SET.lenMin}).eq('id',profile.chapter_id);
+  this.textContent='Saved';setTimeout(()=>this.textContent='Save',1200);
+};
+function applySettings(){
+  $('heroRoom').textContent=SET.room;
+  $('heroLen').textContent=SET.lenMin+' minutes';
+  $('chairRoom').textContent=SET.room;
+  $('tsMeeting').textContent=fmt2(SET.lenMin*60);
+  recalc();
+}
+function buildSettings(){
+  buildSchedEd();
+  $('setVote').value=toLocalInput(VOTE_CLOSE);
+  $('setSub').value=toLocalInput(SUB_CLOSE);
+  $('setRoom').value=SET.room;
+  $('setLen').value=SET.lenMin;
+}
+
+async function loadChapterSettings(){
+  if(!profile)return;
+  const {data:ch}=await sb.from('chapters').select('*').eq('id',profile.chapter_id).single();
+  if(ch){
+    SET.room=ch.room||SET.room;
+    SET.lenMin=ch.meeting_length_min||SET.lenMin;
+    if(ch.vote_close) VOTE_CLOSE=new Date(ch.vote_close);
+    if(ch.sub_close)  SUB_CLOSE=new Date(ch.sub_close);
+    if(ch.run_sheet&&ch.run_sheet.formats){
+      FORMATS=Object.assign(JSON.parse(JSON.stringify(FORMATS_DEFAULT)),ch.run_sheet.formats);
+      ACTIVE_FORMAT=ch.run_sheet.active&&FORMATS[ch.run_sheet.active]?ch.run_sheet.active:'main';
+      EDIT_FORMAT=ACTIVE_FORMAT;
+      SEG=FORMATS[ACTIVE_FORMAT].segments;
+      halt();i=0;left=SEG[0].d;buildList();paint();buildEd();
+    }
+  }
+  // Not filtered by date: a meeting stays "current" (CHAPTER_MEETINGS[0])
+  // through its whole live run, even once its start time has passed,
+  // until the chair explicitly marks it complete. Otherwise the live
+  // ballot below would lose track of "tonight's meeting" mid-debate.
+  const {data:meetings}=await sb.from('meetings').select('*,motions!meetings_motion_fk(claim)')
+    .eq('chapter_id',profile.chapter_id).neq('status','completed')
+    .order('scheduled_at').limit(6);
+  CHAPTER_MEETINGS=meetings||[];
+  CHAPTER_MEETINGS.forEach((m,k)=>{MTG[k]=new Date(m.scheduled_at)});
+  const chapterName=CHAPTERS.find(c=>c.id===profile.chapter_id);
+  const li=$('memberLeadIn'); if(li) li.textContent=(chapterName?chapterName.name:'Your chapter')+' · Your chapter';
+  const hm=$('heroMotion'); if(hm) hm.textContent=(CHAPTER_MEETINGS[0]&&CHAPTER_MEETINGS[0].motions)?CHAPTER_MEETINGS[0].motions.claim:'No topic set yet.';
+  ['adminChapterK','settingsChapterK'].forEach(id=>{const e=$(id); if(e) e.textContent='Leaders only'+(chapterName?' · '+chapterName.name:'')});
+  fillDates();buildSettings();applySettings();
+  renderLiveBallot();
+  if(document.querySelector('.page.on')?.id==='chair') renderChairBallot();
+}
+
+/* ---------- live in-meeting ballot (the real "before / after" QR vote) ----------
+   Nobody, including the chair, can read an individual ballot row back
+   (RLS: ballots_own_read is voter_id = auth.uid() only) — only the
+   aggregate counts from meeting_ballot_results, which never carry a
+   voter_id. That's what keeps this a genuinely private ballot. */
+function ballotCountLine(rows,stage){
+  const r=rows.filter(x=>x.stage===stage);
+  const get=side=>{const x=r.find(y=>y.side===side);return x?x.votes:0};
+  const tot=get('for')+get('against')+get('undecided');
+  return tot ? (get('for')+' for · '+get('against')+' against · '+get('undecided')+' undecided') : 'No votes yet';
+}
+async function renderChairBallot(){
+  if(!$('ballotStageNote'))return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){
+    $('ballotStageNote').textContent='No meeting scheduled yet';
+    $('ballotCounts').innerHTML='<p class="note">Add a meeting date in Settings → Debate schedule first — the buttons below need a meeting to open a vote on.</p>';
+    return;
+  }
+  const {data:fresh}=await sb.from('meetings').select('voting_stage').eq('id',m.id).single();
+  m.voting_stage=fresh?fresh.voting_stage:null;
+  $('ballotStageNote').textContent=m.voting_stage?('"'+m.voting_stage+'" vote is open'):'No vote open';
+  const {data:rows}=await sb.from('meeting_ballot_results').select('*').eq('meeting_id',m.id);
+  $('ballotCounts').innerHTML=
+    '<div class="row"><div class="d">Before</div><div class="m" style="font-size:16px">'+ballotCountLine(rows||[],'before')+'</div><div class="s"></div></div>'+
+    '<div class="row"><div class="d">After</div><div class="m" style="font-size:16px">'+ballotCountLine(rows||[],'after')+'</div><div class="s"></div></div>';
+}
+async function setVotingStage(stage){
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){alert('No meeting scheduled yet — add one in Settings → Debate schedule first.');return}
+  await sb.from('meetings').update({voting_stage:stage}).eq('id',m.id);
+  m.voting_stage=stage;
+  renderChairBallot();
+}
+$('openBefore').onclick=()=>setVotingStage('before');
+$('openAfter').onclick=()=>setVotingStage('after');
+$('closeVote').onclick=()=>setVotingStage(null);
+$('markComplete').onclick=async()=>{
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){alert('No meeting scheduled yet — add one in Settings → Debate schedule first.');return}
+  if(!confirm('Mark this meeting complete? It moves to the Archive and the schedule advances to the next one.'))return;
+  await sb.from('meetings').update({status:'completed',voting_stage:null}).eq('id',m.id);
+  await loadChapterSettings();
+};
+
+async function renderLiveBallot(){
+  const box=$('liveBallotBox');
+  if(!profile||!box)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){box.style.display='none';return}
+  // re-check the live value on every call instead of trusting the
+  // cached copy — the chair can open/close a stage from a different
+  // device at any moment, and this is what the 6s poll is for
+  const {data:fresh}=await sb.from('meetings').select('voting_stage').eq('id',m.id).single();
+  m.voting_stage=fresh?fresh.voting_stage:null;
+  if(!m.voting_stage){box.style.display='none';return}
+  box.style.display='';
+  $('liveBallotLabel').textContent='The room is voting now — '+(m.voting_stage==='before'?'before the debate':'after the debate')+'.';
+  const {data:mine}=await sb.from('ballots').select('side')
+    .eq('meeting_id',m.id).eq('stage',m.voting_stage).eq('voter_id',profile.id).maybeSingle();
+  document.querySelectorAll('#liveBallotBox [data-side]').forEach(b=>b.classList.toggle('on',!!mine&&mine.side===b.dataset.side));
+  $('liveBallotStatus').textContent=mine?('You voted: '+mine.side):'You haven\'t voted this stage yet.';
+}
+document.querySelectorAll('#liveBallotBox [data-side]').forEach(b=>b.onclick=async()=>{
+  const m=CHAPTER_MEETINGS[0];
+  if(!m||!m.voting_stage||!profile)return;
+  b.disabled=true;
+  await sb.from('ballots').upsert(
+    {meeting_id:m.id,voter_id:profile.id,stage:m.voting_stage,side:b.dataset.side},
+    {onConflict:'meeting_id,voter_id,stage'}
+  );
+  b.disabled=false;
+  renderLiveBallot();
+});
+async function refreshCurrentMeeting(){
+  // lighter than loadChapterSettings() — just re-checks which meeting
+  // is current and its live voting_stage, for the 6s poll below. A
+  // brand-new meeting (created after this member/leader last loaded
+  // the page) would otherwise never be noticed, since CHAPTER_MEETINGS
+  // was only ever populated once, at login.
+  if(!profile)return;
+  const {data:meetings}=await sb.from('meetings').select('*,motions!meetings_motion_fk(claim)')
+    .eq('chapter_id',profile.chapter_id).neq('status','completed')
+    .order('scheduled_at').limit(6);
+  CHAPTER_MEETINGS=meetings||[];
+}
+setInterval(async()=>{
+  if(!profile)return;
+  const cur=document.querySelector('.page.on');
+  if(!cur)return;
+  if(cur.id==='chair'){await refreshCurrentMeeting();renderChairBallot()}
+  if(cur.id==='home'){await refreshCurrentMeeting();renderLiveBallot()}
+},6000);
+
+/* ---------- account (real profile, not a demo identity) ---------- */
+const ROLE_LABEL={member:'Member',leader:'Admin (chapter leader)',national_admin:'National admin'};
+const PERMISSIONS={
+  member:[
+    'Vote on your chapter\'s shortlisted topics',
+    'Submit topics for the shortlist',
+    'View the schedule, archive, chapters, and rules',
+    'File anonymous reports to your chapter\'s leadership'
+  ],
+  leader:[
+    'Everything a member can do',
+    'Run the Chair console for your chapter\'s meetings',
+    'View and manage your chapter\'s roster',
+    'Read and resolve your chapter\'s anonymous reports',
+    'Edit your chapter\'s settings, schedule, and run-sheet formats'
+  ],
+  national_admin:[
+    'Everything a chapter leader can do, for every chapter',
+    'Approve chapter requests and add new chapters',
+    'Read anonymous reports from any chapter',
+    'Preview the site as an admin or a member (view as)'
+  ]
+};
+function loadAccountPage(){
+  if(!profile)return;
+  $('acName').textContent=profile.full_name;
+  $('ac1').value=profile.full_name;
+  $('ac2').value=session.user.email;
+  $('ac3').innerHTML=CHAPTERS.map(c=>'<option value="'+c.id+'"'+(c.id===profile.chapter_id?' selected':'')+'>'+c.name+'</option>').join('');
+  $('ac4').value=profile.office||'';
+  $('acFloor').textContent=profile.floor_log_count||0;
+  $('acSince').textContent=new Date(profile.member_since).toLocaleDateString(undefined,{month:'long',year:'numeric'});
+  $('acRoleLabel').textContent='Your role: '+(ROLE_LABEL[profile.role]||profile.role);
+  $('acPerms').innerHTML=(PERMISSIONS[profile.role]||[]).map(p=>
+    '<div class="row"><div class="d"></div><div class="m" style="font-size:15.5px">'+p+'</div><div class="s"></div></div>').join('');
+}
+$('acSave').onclick=async function(){
+  if(!profile)return;
+  const full_name=$('ac1').value.trim(), chapter_id=$('ac3').value;
+  if(!full_name){showAuthErr('acErr','Name can\'t be empty.');return}
+  this.textContent='Saving…';
+  const {error}=await sb.from('profiles').update({full_name,chapter_id}).eq('id',profile.id);
+  this.textContent='Save changes';
+  if(error){showAuthErr('acErr',error.message);return}
+  $('acErr').style.display='none';
+  await refreshSession();
+  loadAccountPage();
+};
+
+/* ---------- admin: roster (real chapter members, not fabricated ones) ---------- */
+async function loadRoster(){
+  if(!profile)return;
+  const {data:members,error}=await sb.from('profiles').select('full_name,office,role,floor_log_count')
+    .eq('chapter_id',profile.chapter_id).order('full_name');
+  const head='<div class="mem"><span class="hd2">Member</span><span class="hd2">Role</span><span class="hd2 num">Floor</span><span class="hd2 num"></span></div>';
+  if(error){$('rosterList').innerHTML=head;$('rosterCount').textContent='— members';return}
+  $('rosterCount').textContent=(members||[]).length+' member'+((members||[]).length===1?'':'s');
+  $('rosterList').innerHTML=head+(members||[]).map(m=>
+    '<div class="mem"><span>'+m.full_name+'</span><span class="rl">'+(m.office||(m.role!=='member'?'Leader':''))+
+    '</span><span class="num">'+m.floor_log_count+'</span><span></span></div>').join('');
+}
+
+/* ---------- admin: reports (real, chapter-scoped, and genuinely anonymous —
+   there is no reporter identity in the `reports` table to show even here) ---------- */
+async function loadReports(){
+  if(!profile)return;
+  const {data:reps,error}=await sb.from('reports').select('*')
+    .eq('chapter_id',profile.chapter_id).order('created_at',{ascending:false});
+  if(error){$('repbox').innerHTML='<p class="note">Could not load reports.</p>';return}
+  const ago=d=>{const days=Math.floor((Date.now()-new Date(d))/864e5);return days<1?'today':days===1?'1 day ago':days+' days ago'};
+  $('repbox').innerHTML=(reps||[]).map(r=>
+   '<div class="rep" data-rep="'+r.id+'"><div class="rh"><span class="id">'+r.category+'</span>'+
+   '<span class="tg '+(r.status==='new'?'new':'seen')+'">'+(r.status==='new'?'Unread':'Reviewed')+'</span></div>'+
+   '<div class="bd">'+r.body+'</div><div class="mt">'+ago(r.created_at)+'</div></div>').join('')
+   || '<p class="note">No reports yet.</p>';
+  $('repcount').textContent=(reps||[]).filter(r=>r.status==='new').length;
+  document.querySelectorAll('#repbox [data-rep]').forEach(el=>el.onclick=async()=>{
+    await sb.from('reports').update({status:'seen'}).eq('id',el.dataset.rep);
+    loadReports();
+  });
+}
+
+fillDates();buildList();paint();buildEd();buildSettings();applySettings();applyAuth();
+loadChapters().then(()=>refreshSession()).catch(err=>console.error('Supabase not reachable yet — check config.js',err));
+loadStats();
+</script>
+</body>
+</html>
