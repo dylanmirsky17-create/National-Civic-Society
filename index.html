@@ -509,6 +509,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
             <option value="leader">Admin (chapter leader)</option>
             <option value="member">Member</option>
           </select></span>
+          <span id="chapterSwitchWrap" style="display:none">· Managing <select id="chapterSwitchSel" style="background:var(--navy-3);color:var(--cream);border:1px solid var(--navy-2);font-size:12px;padding:2px 4px"></select></span>
           · <button id="logout">Sign out</button>
         </div>
       </div>
@@ -1006,7 +1007,7 @@ function fillDates(){
   set('schedSub2','Submissions open '+fDay(addDays(MTG[2],1)));
   set('voteK','Closes '+fDay(VOTE_CLOSE));
   set('subK','Open until '+fDay(SUB_CLOSE));
-  const chapterName=profile&&CHAPTERS.find(c=>c.id===profile.chapter_id);
+  const chapterName=profile&&CHAPTERS.find(c=>c.id===activeChapterId());
   set('schedSeason',calcSeason()+(chapterName?' · '+chapterName.name:''));
 }
 
@@ -1128,13 +1129,24 @@ $('doreg').onclick=async function(){
 let VIEW_AS=null;
 function effectiveRole(){ return (profile&&profile.role==='national_admin'&&VIEW_AS) ? VIEW_AS : (profile?profile.role:S.role); }
 
+/* ---------- chapter switcher — a national admin can point every
+   admin tool (Chair, Admin, Settings, Schedule) at any chapter, not
+   just their own. Member-facing actions (voting, submitting a
+   topic, filing a report) always stay tied to the account's real
+   home chapter — this only affects the admin/oversight surfaces. ---------- */
+let ACTING_CHAPTER=null;
+function activeChapterId(){
+  if(!profile)return null;
+  return (profile.role==='national_admin'&&ACTING_CHAPTER) ? ACTING_CHAPTER : profile.chapter_id;
+}
+
 function applyAuth(){
   const on=S.auth, role=effectiveRole(), lead=on&&(role==='leader'||role==='national_admin');
   $('guestbar').style.display=on?'none':'';
   $('userbar').style.display=on?'':'none';
   document.querySelectorAll('nav .mbr').forEach(b=>b.style.display=on?'':'none');
   document.querySelectorAll('nav .ldr').forEach(b=>b.style.display=lead?'':'none');
-  const chapterName=profile&&CHAPTERS.find(c=>c.id===profile.chapter_id);
+  const chapterName=profile&&CHAPTERS.find(c=>c.id===activeChapterId());
   $('chname').textContent=on?(chapterName?chapterName.name:'Your chapter'):'United States';
   $('homeGuest').style.display=on?'none':'';
   $('homeMember').style.display=on?'':'none';
@@ -1143,8 +1155,14 @@ function applyAuth(){
     $('urole').textContent=profile.office||(lead?'Leader':'Member');
     $('uview').textContent=role;
     const vw=$('viewAsWrap');
-    if(profile.role==='national_admin'){ vw.style.display=''; $('viewAsSel').value=VIEW_AS||'national_admin'; }
-    else vw.style.display='none';
+    if(profile.role==='national_admin'){
+      vw.style.display=''; $('viewAsSel').value=VIEW_AS||'national_admin';
+      const csw=$('chapterSwitchWrap'); csw.style.display='';
+      $('chapterSwitchSel').innerHTML=CHAPTERS.map(c=>'<option value="'+c.id+'"'+(c.id===activeChapterId()?' selected':'')+'>'+c.name+'</option>').join('');
+    } else {
+      vw.style.display='none';
+      $('chapterSwitchWrap').style.display='none';
+    }
     loadChapterSettings();   // read-only for everyone; only leaders can save changes (enforced by RLS)
     if(lead){loadReports();loadRoster();}
   }
@@ -1156,6 +1174,7 @@ function applyAuth(){
   }
 }
 $('viewAsSel').onchange=function(){ VIEW_AS=this.value; applyAuth(); go('home'); };
+$('chapterSwitchSel').onchange=function(){ ACTING_CHAPTER=this.value; applyAuth(); };
 $('logout').onclick=async()=>{
   halt();                       // never leave a debate clock running after sign-out
   await sb.auth.signOut();
@@ -1587,7 +1606,7 @@ $('tsave').onclick=async function(){
   SEG=FORMATS[ACTIVE_FORMAT].segments;
   halt();i=0;left=SEG[0].d;buildList();paint();
   this.textContent='Saving…';
-  const {error}=await sb.from('chapters').update({run_sheet:{active:ACTIVE_FORMAT,formats:FORMATS}}).eq('id',profile.chapter_id);
+  const {error}=await sb.from('chapters').update({run_sheet:{active:ACTIVE_FORMAT,formats:FORMATS}}).eq('id',activeChapterId());
   this.textContent=error?'Save':'Saved';
   buildEd();
   if(!error) setTimeout(()=>{this.textContent='Save'},1200);
@@ -1619,12 +1638,13 @@ $('schedSave').onclick=async function(){
   this.textContent='Saving…';
   // re-fetch fresh (never trust the in-memory cache for this) so two
   // saves in a row update the same rows instead of creating duplicates
-  const {data:existingRows}=await sb.from('meetings').select('id').eq('chapter_id',profile.chapter_id)
+  const chId=activeChapterId();
+  const {data:existingRows}=await sb.from('meetings').select('id').eq('chapter_id',chId)
     .neq('status','completed').order('scheduled_at').limit(vals.length);
   for(let k=0;k<vals.length;k++){
     const existing=(existingRows||[])[k];
     if(existing) await sb.from('meetings').update({scheduled_at:vals[k].toISOString()}).eq('id',existing.id);
-    else await sb.from('meetings').insert({chapter_id:profile.chapter_id,scheduled_at:vals[k].toISOString()});
+    else await sb.from('meetings').insert({chapter_id:chId,scheduled_at:vals[k].toISOString()});
     MTG[k]=vals[k];
   }
   await loadChapterSettings();
@@ -1642,7 +1662,7 @@ $('setVoteSave').onclick=async function(){
   if($('setSub').value)  SUB_CLOSE =new Date($('setSub').value);
   fillDates();
   this.textContent='Saving…';
-  await sb.from('chapters').update({vote_close:VOTE_CLOSE.toISOString(),sub_close:SUB_CLOSE.toISOString()}).eq('id',profile.chapter_id);
+  await sb.from('chapters').update({vote_close:VOTE_CLOSE.toISOString(),sub_close:SUB_CLOSE.toISOString()}).eq('id',activeChapterId());
   this.textContent='Saved';setTimeout(()=>this.textContent='Save',1200);
 };
 $('setMiscSave').onclick=async function(){
@@ -1652,7 +1672,7 @@ $('setMiscSave').onclick=async function(){
   if(len>=10) SET.lenMin=len;
   applySettings();
   this.textContent='Saving…';
-  await sb.from('chapters').update({room:SET.room,meeting_length_min:SET.lenMin}).eq('id',profile.chapter_id);
+  await sb.from('chapters').update({room:SET.room,meeting_length_min:SET.lenMin}).eq('id',activeChapterId());
   this.textContent='Saved';setTimeout(()=>this.textContent='Save',1200);
 };
 function applySettings(){
@@ -1672,7 +1692,8 @@ function buildSettings(){
 
 async function loadChapterSettings(){
   if(!profile)return;
-  const {data:ch}=await sb.from('chapters').select('*').eq('id',profile.chapter_id).single();
+  const chId=activeChapterId();
+  const {data:ch}=await sb.from('chapters').select('*').eq('id',chId).single();
   if(ch){
     SET.room=ch.room||SET.room;
     SET.lenMin=ch.meeting_length_min||SET.lenMin;
@@ -1691,11 +1712,11 @@ async function loadChapterSettings(){
   // until the chair explicitly marks it complete. Otherwise the live
   // ballot below would lose track of "tonight's meeting" mid-debate.
   const {data:meetings}=await sb.from('meetings').select('*,motions!meetings_motion_fk(claim)')
-    .eq('chapter_id',profile.chapter_id).neq('status','completed')
+    .eq('chapter_id',chId).neq('status','completed')
     .order('scheduled_at').limit(6);
   CHAPTER_MEETINGS=meetings||[];
   CHAPTER_MEETINGS.forEach((m,k)=>{MTG[k]=new Date(m.scheduled_at)});
-  const chapterName=CHAPTERS.find(c=>c.id===profile.chapter_id);
+  const chapterName=CHAPTERS.find(c=>c.id===chId);
   const li=$('memberLeadIn'); if(li) li.textContent=(chapterName?chapterName.name:'Your chapter')+' · Your chapter';
   const hm=$('heroMotion'); if(hm) hm.textContent=(CHAPTER_MEETINGS[0]&&CHAPTER_MEETINGS[0].motions)?CHAPTER_MEETINGS[0].motions.claim:'No topic set yet.';
   ['adminChapterK','settingsChapterK'].forEach(id=>{const e=$(id); if(e) e.textContent='Leaders only'+(chapterName?' · '+chapterName.name:'')});
@@ -1786,7 +1807,7 @@ async function refreshCurrentMeeting(){
   // was only ever populated once, at login.
   if(!profile)return;
   const {data:meetings}=await sb.from('meetings').select('*,motions!meetings_motion_fk(claim)')
-    .eq('chapter_id',profile.chapter_id).neq('status','completed')
+    .eq('chapter_id',activeChapterId()).neq('status','completed')
     .order('scheduled_at').limit(6);
   CHAPTER_MEETINGS=meetings||[];
 }
@@ -1851,7 +1872,7 @@ $('acSave').onclick=async function(){
 async function loadRoster(){
   if(!profile)return;
   const {data:members,error}=await sb.from('profiles').select('full_name,office,role,floor_log_count')
-    .eq('chapter_id',profile.chapter_id).order('full_name');
+    .eq('chapter_id',activeChapterId()).order('full_name');
   const head='<div class="mem"><span class="hd2">Member</span><span class="hd2">Role</span><span class="hd2 num">Floor</span><span class="hd2 num"></span></div>';
   if(error){$('rosterList').innerHTML=head;$('rosterCount').textContent='— members';return}
   $('rosterCount').textContent=(members||[]).length+' member'+((members||[]).length===1?'':'s');
@@ -1865,7 +1886,7 @@ async function loadRoster(){
 async function loadReports(){
   if(!profile)return;
   const {data:reps,error}=await sb.from('reports').select('*')
-    .eq('chapter_id',profile.chapter_id).order('created_at',{ascending:false});
+    .eq('chapter_id',activeChapterId()).order('created_at',{ascending:false});
   if(error){$('repbox').innerHTML='<p class="note">Could not load reports.</p>';return}
   const ago=d=>{const days=Math.floor((Date.now()-new Date(d))/864e5);return days<1?'today':days===1?'1 day ago':days+' days ago'};
   $('repbox').innerHTML=(reps||[]).map(r=>
