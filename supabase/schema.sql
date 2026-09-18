@@ -117,6 +117,9 @@ create table chapter_requests (
   requested_by_name text,
   requested_by_email text,
   notes text,
+  location text,               -- e.g. "Spokane, WA", collected from the requester
+  lat double precision,        -- geocoded from `location` at request time, if found
+  lng double precision,
   status text not null default 'pending',
   created_at timestamptz not null default now()
 );

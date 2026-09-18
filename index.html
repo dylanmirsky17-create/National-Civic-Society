@@ -993,6 +993,19 @@ const S={auth:false,role:'member'};
 let profile=null, session=null;
 let CHAPTERS=[];               // loaded from the `chapters` table
 let PENDING_CHAPTER_ID=null;   // the shared holding-pen chapter for unapproved requests
+
+/* turns "Spokane, WA" into map coordinates via OpenStreetMap's free
+   geocoder — no API key needed. Failing silently (returning null) is
+   fine here: the chapter can always get real coordinates added later
+   from Table Editor if a location doesn't geocode cleanly. */
+async function geocodeLocation(query){
+  try{
+    const res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q='+encodeURIComponent(query));
+    const data=await res.json();
+    if(data&&data[0]) return {lat:parseFloat(data[0].lat),lng:parseFloat(data[0].lon)};
+  }catch(e){console.error('geocoding failed',e)}
+  return null;
+}
 const SET={room:'Room US 211',lenMin:40};   // mirrors the signed-in leader's chapter row
 const $=id=>document.getElementById(id);
 
@@ -1171,11 +1184,14 @@ $('doreg').onclick=async function(){
   if(email!==emailConfirm){showAuthErr('regErr','Those two emails don\'t match.');return}
   if(password.length<8){showAuthErr('regErr','Password needs to be at least 8 characters.');return}
   if(password!==passwordConfirm){showAuthErr('regErr','Those two passwords don\'t match.');return}
-  let signupChapterId=chapter_id, pendingSchool=null;
+  let signupChapterId=chapter_id, pendingSchool=null, pendingLocation=null;
   if(chapter_id==='__req'){
     const school=prompt('Name of your school, so we can start a chapter there:');
     if(!school){showAuthErr('regErr','Enter your school name to continue, or pick a listed chapter instead.');return}
     pendingSchool=school.trim();
+    const location=prompt('City and state where '+pendingSchool+' is located (e.g. "Spokane, WA") — this is what places it on the map:');
+    if(!location){showAuthErr('regErr','Enter a city and state so your chapter can be placed on the map.');return}
+    pendingLocation=location.trim();
     if(!PENDING_CHAPTER_ID){showAuthErr('regErr','Something went wrong setting up your account — try again in a moment.');return}
     signupChapterId=PENDING_CHAPTER_ID;
   }
@@ -1183,7 +1199,13 @@ $('doreg').onclick=async function(){
   const {error}=await sb.auth.signUp({email,password,options:{data:{full_name,chapter_id:signupChapterId,pending_school_name:pendingSchool||''}}});
   this.textContent='Create account';
   if(error){showAuthErr('regErr',error.message);return}
-  if(pendingSchool) await sb.from('chapter_requests').insert({school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email});
+  if(pendingSchool){
+    const coords=await geocodeLocation(pendingLocation);
+    await sb.from('chapter_requests').insert({
+      school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email,
+      location:pendingLocation,lat:coords?coords.lat:null,lng:coords?coords.lng:null
+    });
+  }
   const {data:{session:s}}=await sb.auth.getSession();
   if(s){
     await refreshSession(); closeAuth(); go('home');
@@ -1994,7 +2016,8 @@ async function loadChapterRequests(){
     const currentChapter=p&&p.chapters?p.chapters.name:null;
     const stillWaiting=!p||(p.chapters&&p.chapters.is_placeholder);
     return '<div class="rep"><div class="rh"><span class="id">Requested chapter: '+r.school_name+'</span><span class="tg new">Pending</span></div>'+
-    '<div class="bd">By '+(r.requested_by_name||'someone')+(r.requested_by_email?' · '+r.requested_by_email:'')+'</div>'+
+    '<div class="bd">By '+(r.requested_by_name||'someone')+(r.requested_by_email?' · '+r.requested_by_email:'')+
+    (r.location?' · Location: '+r.location+(r.lat!=null?' (found on map)':' (not found — will need coordinates added manually)'):' · No location given')+'</div>'+
     '<div class="mt">Currently in: '+(currentChapter||'no account found')+(stillWaiting?'':' — already placed elsewhere, may be stale')+' · '+new Date(r.created_at).toLocaleDateString()+'</div>'+
     '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+
     '<button class="btn" data-approve="'+r.id+'">Approve &amp; create chapter</button>'+
@@ -2006,9 +2029,14 @@ async function loadChapterRequests(){
 }
 async function approveChapterRequest(req){
   if(!req)return;
-  const location=prompt('Location for "'+req.school_name+'" (city, state) — optional:','')||null;
-  if(!confirm('Create "'+req.school_name+'" as a new chapter and move anyone waiting on it in?'))return;
-  const {data:newChapter,error}=await sb.from('chapters').insert({name:req.school_name,location,status:'active'}).select().single();
+  let location=req.location, lat=req.lat, lng=req.lng;
+  if(!location){
+    location=prompt('Location for "'+req.school_name+'" (city, state) — optional:','')||null;
+    if(location){const coords=await geocodeLocation(location); if(coords){lat=coords.lat;lng=coords.lng}}
+  }
+  const mapNote=lat!=null?'':' (no coordinates found — it\'ll show in the list but not on the map until you add them in Table Editor)';
+  if(!confirm('Create "'+req.school_name+'" as a new chapter and move anyone waiting on it in?'+mapNote))return;
+  const {data:newChapter,error}=await sb.from('chapters').insert({name:req.school_name,location,lat,lng,status:'active'}).select().single();
   if(error){alert(error.message);return}
   const {error:moveErr}=await sb.from('profiles').update({chapter_id:newChapter.id,pending_school_name:null})
     .eq('chapter_id',PENDING_CHAPTER_ID).eq('pending_school_name',req.school_name);
