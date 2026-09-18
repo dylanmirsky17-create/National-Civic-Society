@@ -22,7 +22,7 @@ create table chapters (
   location text,
   status chapter_status not null default 'inquiry',
   room text default 'TBD',
-  meeting_length_min int not null default 40,
+  meeting_length_min int not null default 32,  -- matches the Standing Orders' 32-minute format (29:30 debate + 2:30 buffer)
   sub_open timestamptz,             -- topic-submission window opens
   sub_close timestamptz,            -- topic-submission deadline for the meeting after that
   vote_open timestamptz,            -- shortlist-vote window opens
