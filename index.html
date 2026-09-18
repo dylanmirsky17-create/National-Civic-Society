@@ -158,9 +158,10 @@ h3.sec.gap{margin-top:42px}
 .opt .by{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;font-weight:600}
 .opt .m{font-family:var(--d);font-weight:600;font-size:20px;line-height:1.3;margin-bottom:5px;color:var(--navy)}
 .opt .r{font-size:15.5px;color:var(--muted);max-width:62ch}
-.btn{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:10px 20px;border:1px solid var(--navy);color:var(--navy);white-space:nowrap}
+.btn{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;padding:10px 20px;border:1px solid var(--navy);color:var(--navy);white-space:nowrap;transition:background .12s ease,color .12s ease,transform .08s ease}
 .btn:hover{background:var(--navy);color:var(--cream)}
-.btn.on{background:var(--navy);color:var(--cream)}
+.btn:active{transform:scale(0.94)}
+.btn.on{background:var(--navy);color:var(--cream);box-shadow:0 0 0 3px rgba(212,175,55,.35)}
 .btn.gh{border-color:var(--rule);color:var(--faint)}
 .btn.gold{border-color:var(--gold-dk);color:var(--gold-dk)}
 .btn.gold:hover{background:var(--gold-dk);color:var(--cream)}
@@ -1914,6 +1915,9 @@ async function renderChairBallot(){
   const {data:fresh}=await sb.from('meetings').select('voting_stage').eq('id',m.id).single();
   m.voting_stage=fresh?fresh.voting_stage:null;
   $('ballotStageNote').textContent=m.voting_stage?('"'+m.voting_stage+'" vote is open'):'No vote open';
+  $('openBefore').classList.toggle('on',m.voting_stage==='before');
+  $('openAfter').classList.toggle('on',m.voting_stage==='after');
+  $('closeVote').classList.toggle('on',!m.voting_stage);
   const {data:rows}=await sb.from('meeting_ballot_results').select('*').eq('meeting_id',m.id);
   $('ballotCounts').innerHTML=
     '<div class="row"><div class="d">Before</div><div class="m" style="font-size:16px">'+ballotCountLine(rows||[],'before')+'</div><div class="s"></div></div>'+
@@ -1922,6 +1926,12 @@ async function renderChairBallot(){
 async function setVotingStage(stage){
   const m=CHAPTER_MEETINGS[0];
   if(!m){alert('No meeting scheduled yet — add one in Settings → Debate schedule first.');return}
+  // flip the button state immediately — don't make the leader wait on
+  // a network round trip just to see their tap registered
+  $('openBefore').classList.toggle('on',stage==='before');
+  $('openAfter').classList.toggle('on',stage==='after');
+  $('closeVote').classList.toggle('on',!stage);
+  $('ballotStageNote').textContent=stage?('"'+stage+'" vote is open'):'No vote open';
   await sb.from('meetings').update({voting_stage:stage}).eq('id',m.id);
   m.voting_stage=stage;
   renderChairBallot();
