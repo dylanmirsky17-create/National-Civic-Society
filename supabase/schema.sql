@@ -303,6 +303,11 @@ create policy "floor_log_leader_write" on floor_log for insert
 -- chapter; only that chapter's leader (or a national admin) can
 -- read them back. There is no reporter identity stored anywhere,
 -- so this is real anonymity, not just a hidden name in the UI.
+-- chapter_id defaults to my_chapter() rather than trusting a
+-- client-supplied value, so a stale cached chapter_id (e.g. after a
+-- chapter request gets approved mid-session) can never fail this
+-- check — the database fills it in fresh at insert time.
+alter table reports alter column chapter_id set default my_chapter();
 create policy "reports_member_insert" on reports for insert
   with check (chapter_id = my_chapter());
 create policy "reports_leader_read" on reports for select

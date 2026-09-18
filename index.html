@@ -1607,9 +1607,12 @@ $('repbtn').onclick=async function(){
   this.disabled=true;this.textContent='Sending…';
   // client generates the id itself: members can't read reports back
   // (leader-only, by design), so this is how we learn the id to
-  // notify about without weakening that read policy.
+  // notify about without weakening that read policy. chapter_id is
+  // left out on purpose — the database fills it in from the current
+  // session, so a stale cached profile.chapter_id can't cause an
+  // RLS mismatch.
   const id=crypto.randomUUID();
-  const {error}=await sb.from('reports').insert({id,chapter_id:profile.chapter_id,category,body});
+  const {error}=await sb.from('reports').insert({id,category,body});
   this.disabled=false;this.textContent='Send anonymously';
   if(error){alert(error.message);return}
   sb.functions.invoke('notify-report',{body:{report_id:id}}).catch(()=>{});
