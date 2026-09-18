@@ -57,6 +57,21 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
 .lf input,.lf select{width:100%;background:var(--navy-3);border:1px solid var(--navy-2);color:var(--cream);padding:11px 12px}
 .lf input:focus,.lf select:focus{outline:none;border-color:var(--gold)}
 .lf .h{font-size:13px;color:var(--navy-mid);margin-top:5px;font-style:italic}
+html{scroll-behavior:smooth}
+.ruleslay{display:grid;grid-template-columns:170px 1fr;gap:40px;align-items:start}
+.rulesnav{position:sticky;top:150px;display:flex;flex-direction:column;gap:1px}
+.rulesnav a{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--faint);padding:7px 0 7px 14px;border-left:2px solid var(--rule);line-height:1.35}
+.rulesnav a:hover{color:var(--ink)}
+.rulesnav a.active{color:var(--gold-dk);border-left-color:var(--gold-dk);font-weight:600}
+.rules-sec{scroll-margin-top:150px}
+@media(max-width:700px){
+  .ruleslay{grid-template-columns:1fr;gap:0}
+  .rulesnav{position:static;flex-direction:row;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;border-bottom:1px solid var(--rule);margin-bottom:20px;scrollbar-width:none}
+  .rulesnav::-webkit-scrollbar{display:none}
+  .rulesnav a{border-left:none;border-bottom:2px solid transparent;padding:8px 12px;white-space:nowrap}
+  .rulesnav a.active{border-left-color:transparent;border-bottom-color:var(--gold-dk)}
+  .rules-sec{scroll-margin-top:16px}
+}
 .geo-wrap{position:relative}
 .geo-suggest{position:absolute;left:0;right:0;top:100%;background:var(--navy-3);border:1px solid var(--navy-2);border-top:none;z-index:20;max-height:180px;overflow-y:auto}
 .geo-suggest button{display:block;width:100%;text-align:left;padding:9px 12px;font-size:13px;color:var(--cream);border-bottom:1px solid var(--navy-2)}
@@ -798,7 +813,20 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   <div class="ph"><div class="k">Standing orders · rev. 5</div><h2>Rules of procedure</h2>
     <p>The procedures governing a debate. A chapter may adapt these where another approach suits its circumstances — variations should be recorded and reported to the Society.</p></div>
 
-  <h3 class="sec">1 · Selecting a topic</h3>
+  <div class="ruleslay">
+  <nav class="rulesnav" aria-label="Jump to section" id="rulesNav">
+    <a href="#r1">1 · Topics</a>
+    <a href="#r2">2 · The chair</a>
+    <a href="#r3">3 · The gavel</a>
+    <a href="#r4">4 · Conduct</a>
+    <a href="#r5">5 · Schedule</a>
+    <a href="#r6">6 · Voting</a>
+    <a href="#r7">7 · Speakers</a>
+    <a href="#r8">8 · Procedure</a>
+  </nav>
+  <div class="rulescol">
+
+  <h3 class="sec rules-sec" id="r1">1 · Selecting a topic</h3>
   <div style="border-top:1px solid var(--rule)">
     <div class="rule-row"><div class="rk">1.1</div><div><div class="rt">Any member may submit a topic</div><div class="rw">Submissions include the proposed topic and a brief explanation of why it merits debate.</div></div></div>
     <div class="rule-row"><div class="rk">1.2</div><div><div class="rt">A topic is stated as a thesis</div><div class="rw">It should read as a position that a member could argue for or against, in the form of a complete assertion. "Immigration" is a subject. "Immigration should be substantially expanded" is a topic.</div></div></div>
@@ -807,21 +835,21 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <div class="rule-row"><div class="rk">1.5</div><div><div class="rt">Topics are published two weeks in advance</div><div class="rw">Members should have time to prepare before the meeting.</div></div></div>
   </div>
 
-  <h3 class="sec gap">2 · The chair</h3>
+  <h3 class="sec gap rules-sec" id="r2">2 · The chair</h3>
   <div style="border-top:1px solid var(--rule)">
     <div class="rule-row"><div class="rk">2.1</div><div><div class="rt">The chair is appointed for each meeting</div><div class="rw">The president appoints a chair for each debate. The position rotates, and a member who chairs one meeting may debate in the next.</div></div></div>
     <div class="rule-row"><div class="rk">2.2</div><div><div class="rt">The chair runs the meeting and does not debate in it</div><div class="rw">The chair opens the meeting, keeps time, signals with the gavel, counts both votes, and announces the result.</div></div></div>
     <div class="rule-row"><div class="rk">2.3</div><div><div class="rt">Four members debate and the remainder are the floor</div><div class="rw">Two members argue for the topic and two against. Every other member present may speak from the floor.</div></div></div>
   </div>
 
-  <h3 class="sec gap">3 · The gavel</h3>
+  <h3 class="sec gap rules-sec" id="r3">3 · The gavel</h3>
   <div class="gavel">
     <div class="gv"><div class="st">|</div><div class="wt">One strike</div><div class="sm">The speaker should conclude the sentence they are on and stop.</div></div>
     <div class="gv"><div class="st">||</div><div class="wt">Two strikes</div><div class="sm">The speaker's time has expired.</div></div>
   </div>
   <p class="note">The chair signals with the gavel rather than interrupting verbally. The signals are explained at the first meeting of the year so members are familiar with them before they're used.</p>
 
-  <h3 class="sec gap">4 · Conduct of a debate</h3>
+  <h3 class="sec gap rules-sec" id="r4">4 · Conduct of a debate</h3>
   <div style="border-top:1px solid var(--rule)">
     <div class="rule-row"><div class="rk">4.1</div><div><div class="rt">The timer is visible to the entire room</div><div class="rw">The countdown is displayed on the room's screen rather than to the speaker alone.</div></div></div>
     <div class="rule-row"><div class="rk">4.2</div><div><div class="rt">The debate opens directly into open forum</div><div class="rw">Following the first vote, the four speakers begin the exchange. There are no prepared opening speeches by default — a chapter may add a brief uninterrupted statement from each side if it prefers.</div></div></div>
@@ -833,7 +861,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <div class="rule-row"><div class="rk">4.8</div><div><div class="rt">Floor rounds accommodate changes to the schedule</div><div class="rw">Where the debate is running ahead of time, the chair may add a fourth floor contribution. Where it's running behind, a round may be reduced to two. Floor time is not reallocated to a main speaker.</div></div></div>
   </div>
 
-  <h3 class="sec gap">5 · Schedule of a debate</h3>
+  <h3 class="sec gap rules-sec" id="r5">5 · Schedule of a debate</h3>
   <div class="rows">
     <div class="row"><div class="d tn">0:00</div><div class="m" style="font-size:16px">Chair opens the meeting<small>Topic, procedure, gavel</small></div><div class="s">1:00</div></div>
     <div class="row"><div class="d tn">1:00</div><div class="m" style="font-size:16px">First vote</div><div class="s">1:00</div></div>
@@ -848,25 +876,28 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   </div>
   <p class="note" style="margin-top:14px"><b>Debate 29:30</b> · Buffer 2:30 · Meeting 32:00. The buffer accounts for transitions between segments and time lost to equipment and movement. Alternative structures are in the Admin run-sheet editor.</p>
 
-  <h3 class="sec gap">6 · Voting</h3>
+  <h3 class="sec gap rules-sec" id="r6">6 · Voting</h3>
   <div class="rows">
     <div class="row"><div class="d">6.1 Method</div><div class="m" style="font-size:17px">Private ballot from your phone<small>Members vote through the Home page while the chair has a stage open. A chapter may adopt another method at the chair's discretion.</small></div><div class="s"></div></div>
     <div class="row"><div class="d">6.2 Timing</div><div class="m" style="font-size:17px">Once before, once after<small>The room votes at the opening and at the close. There is no midpoint vote.</small></div><div class="s"></div></div>
     <div class="row"><div class="d">6.3 Result</div><div class="m" style="font-size:17px">Decided by the larger change in the vote<small>The side that moves more of the room toward its position prevails, regardless of which side holds the majority at the close. Both counts are announced and entered in the chapter record.</small></div><div class="s"></div></div>
   </div>
 
-  <h3 class="sec gap">7 · Selection of speakers</h3>
+  <h3 class="sec gap rules-sec" id="r7">7 · Selection of speakers</h3>
   <div class="rows">
     <div class="row"><div class="d">7.1</div><div class="m" style="font-size:17px">Members volunteer and the chair selects<small>The chair fills the four positions, taking into account how recently and how often each member has spoken.</small></div><div class="s"></div></div>
     <div class="row"><div class="d">7.2</div><div class="m" style="font-size:17px">Members who have spoken less recently take precedence<small>A member may volunteer again immediately after speaking, but preference goes to members who haven't spoken recently or at all.</small></div><div class="s"></div></div>
   </div>
 
-  <h3 class="sec gap">8 · Procedure and conduct</h3>
+  <h3 class="sec gap rules-sec" id="r8">8 · Procedure and conduct</h3>
   <div style="border-top:1px solid var(--rule)">
     <div class="rule-row"><div class="rk">8.1</div><div><div class="rt">The chair rules on questions of procedure during a debate</div><div class="rw">A procedural question raised during a debate is decided by the chair at the time, and the debate continues. The ruling may be revisited afterward.</div></div></div>
     <div class="rule-row"><div class="rk">8.2</div><div><div class="rt">Matters of conduct are addressed after the meeting</div><div class="rw">Where conduct doesn't require the debate to be halted, the chair or the advisor raises it with the member privately once the meeting has concluded.</div></div></div>
     <div class="rule-row"><div class="rk">8.3</div><div><div class="rt">The chair may ask a member to withdraw</div><div class="rw">Where a member's conduct prevents the debate from continuing, the chair may ask them to leave for the remainder of the meeting. The advisor is informed the same day.</div></div></div>
     <div class="rule-row"><div class="rk">8.4</div><div><div class="rt">Chapters may adapt these procedures</div><div class="rw">A chapter may vary its practice where another approach suits its circumstances. Variations should be recorded and reported to the Society.</div></div></div>
+  </div>
+
+  </div>
   </div>
 </div></div>
 
@@ -1491,6 +1522,18 @@ $('nav').addEventListener('keydown',e=>{
   tabs[to].focus();go(tabs[to].dataset.p);
 });
 document.querySelectorAll('[data-goto]').forEach(a=>a.onclick=e=>{e.preventDefault();go(a.dataset.goto)});
+
+/* ---------- rules page side nav: highlight the section in view ---------- */
+{
+  const rulesLinks=document.querySelectorAll('#rulesNav a');
+  if(rulesLinks.length){
+    const setActive=id=>rulesLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+id));
+    const spy=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{ if(en.isIntersecting) setActive(en.target.id) });
+    },{rootMargin:'-160px 0px -70% 0px'});
+    document.querySelectorAll('.rules-sec').forEach(s=>spy.observe(s));
+  }
+}
 $('footrep').onclick=()=>{ if(!S.auth){openAuth('signin');return} go('account');setTimeout(()=>$('rp1').focus(),80) };
 
 /* ---------- countdown ---------- */
