@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#F6F4ED;font-family:Georgia,'Times New Roman',serif;color:#1A1C22;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F4ED;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="background:#FFFFFF;border:1px solid #DFDDD3;">
+          <tr>
+            <td style="background:#16243F;padding:28px 32px;text-align:center;">
+              <span style="color:#EFE3C0;font-size:13px;letter-spacing:0.06em;">the</span><br>
+              <span style="color:#F4EFE3;font-size:22px;font-weight:600;letter-spacing:0.02em;">National Civic Society</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 32px 8px;">
+              <h1 style="margin:0 0 16px;font-size:22px;color:#16243F;">Confirm your account</h1>
+              <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#1A1C22;">
+                Thanks for joining the National Civic Society. Click below to confirm your email and finish setting up your account.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 28px;">
+              <a href="{{ .ConfirmationURL }}" style="display:block;text-align:center;background:#D4AF37;color:#16243F;text-decoration:none;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;padding:14px;">
+                Confirm your email
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 32px;">
+              <p style="margin:0;font-size:13px;line-height:1.6;color:#8B8F9C;">
+                If the button above doesn't work, paste this link into your browser:<br>
+                <a href="{{ .ConfirmationURL }}" style="color:#8A6E1E;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </p>
+              <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#8B8F9C;">
+                Didn't request this? You can safely ignore this email.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
