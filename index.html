@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{
   --navy:#16243F; --navy-2:#243758; --navy-3:#0E182B; --navy-pale:#E8EAF0; --navy-mid:#8895AE;
@@ -56,6 +57,13 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
 .lf input,.lf select{width:100%;background:var(--navy-3);border:1px solid var(--navy-2);color:var(--cream);padding:11px 12px}
 .lf input:focus,.lf select:focus{outline:none;border-color:var(--gold)}
 .lf .h{font-size:13px;color:var(--navy-mid);margin-top:5px;font-style:italic}
+.geo-wrap{position:relative}
+.geo-suggest{position:absolute;left:0;right:0;top:100%;background:var(--navy-3);border:1px solid var(--navy-2);border-top:none;z-index:20;max-height:180px;overflow-y:auto}
+.geo-suggest button{display:block;width:100%;text-align:left;padding:9px 12px;font-size:13px;color:var(--cream);border-bottom:1px solid var(--navy-2)}
+.geo-suggest button:hover{background:var(--navy-2)}
+.geo-status{font-size:12px;color:var(--gold-soft);margin-top:5px;min-height:15px}
+#reqMap{height:180px;margin-top:10px;display:none;border:1px solid var(--navy-2)}
+#reqMap.on{display:block}
 .lbtn{width:100%;background:var(--gold);color:var(--navy);padding:12px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;font-weight:600;margin-top:8px}
 .lbtn:hover{background:var(--gold-soft)}
 .lalt{margin-top:18px;font-size:14px;color:var(--navy-mid)}
@@ -466,6 +474,16 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
           <option value="__req">Request a chapter (my school isn't listed)</option>
         </select>
         <div class="h">No chapter at your school yet? Choose the last option to start one.</div>
+      </div>
+      <div id="reqFields" style="display:none">
+        <div class="lf"><label for="reqSchool">School name</label><input id="reqSchool" placeholder="e.g. Roosevelt High School"></div>
+        <div class="lf geo-wrap">
+          <label for="reqAddress">School address</label>
+          <input id="reqAddress" placeholder="Start typing an address or city and state…" autocomplete="off">
+          <div id="reqSuggest" class="geo-suggest" style="display:none"></div>
+          <div class="geo-status" id="reqGeoStatus"></div>
+        </div>
+        <div id="reqMap"></div>
       </div>
       <div class="lf"><label for="p2">Password</label><input id="p2" type="password"></div>
       <div class="lf"><label for="p2b">Confirm password</label><input id="p2b" type="password"></div>
@@ -1052,6 +1070,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 </div></footer>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -1081,8 +1100,73 @@ async function geocodeLocation(query){
   }catch(e){console.error('geocoding failed',e)}
   return null;
 }
+
 const SET={room:'Room US 211',lenMin:40};   // mirrors the signed-in leader's chapter row
 const $=id=>document.getElementById(id);
+
+/* ---------- chapter-request address map ----------
+   As someone types their school's address we look up matching
+   addresses (Nominatim, same free geocoder as above) and let them
+   pick one, which drops a pin on an embedded Leaflet map. They can
+   also drag the pin to fine-tune it. reqLat/reqLng are read directly
+   at signup time instead of re-geocoding, so what they see on the
+   map is exactly what gets stored. */
+let reqLat=null, reqLng=null, reqMapObj=null, reqMarker=null, reqDebounce=null;
+function ensureReqMap(){
+  if(reqMapObj) return reqMapObj;
+  reqMapObj=L.map('reqMap',{attributionControl:false}).setView([39.8,-98.6],4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(reqMapObj);
+  reqMarker=L.marker([39.8,-98.6],{draggable:true}).addTo(reqMapObj);
+  reqMarker.on('dragend',()=>{
+    const p=reqMarker.getLatLng();
+    reqLat=p.lat; reqLng=p.lng;
+    $('reqGeoStatus').textContent='Pin adjusted — using the dragged location.';
+  });
+  return reqMapObj;
+}
+function setReqPin(lat,lng,label){
+  reqLat=lat; reqLng=lng;
+  const map=ensureReqMap();
+  $('reqMap').classList.add('on');
+  setTimeout(()=>map.invalidateSize(),0);
+  map.setView([lat,lng],15);
+  reqMarker.setLatLng([lat,lng]);
+  $('reqGeoStatus').textContent=label?('Located: '+label+' — drag the pin to fine-tune it.'):'Drag the pin to fine-tune it.';
+}
+function resetReqFields(){
+  $('reqSchool').value=''; $('reqAddress').value='';
+  $('reqSuggest').style.display='none'; $('reqSuggest').innerHTML='';
+  $('reqGeoStatus').textContent=''; $('reqMap').classList.remove('on');
+  reqLat=null; reqLng=null;
+}
+$('s2').addEventListener('change',()=>{
+  const on=$('s2').value==='__req';
+  $('reqFields').style.display=on?'block':'none';
+  if(!on) resetReqFields();
+});
+$('reqAddress').addEventListener('input',function(){
+  const q=this.value.trim();
+  clearTimeout(reqDebounce);
+  if(q.length<4){$('reqSuggest').style.display='none';return}
+  reqDebounce=setTimeout(async()=>{
+    try{
+      const res=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=5&countrycodes=us&q='+encodeURIComponent(q));
+      const data=await res.json();
+      const box=$('reqSuggest');
+      if(!data||!data.length){box.style.display='none';return}
+      box.innerHTML=data.map((d,i)=>'<button type="button" data-i="'+i+'">'+d.display_name+'</button>').join('');
+      box.style.display='block';
+      box.querySelectorAll('button').forEach((btn,i)=>{
+        btn.onclick=()=>{
+          const d=data[i];
+          $('reqAddress').value=d.display_name;
+          box.style.display='none';
+          setReqPin(parseFloat(d.lat),parseFloat(d.lon),d.display_name);
+        };
+      });
+    }catch(e){console.error('address lookup failed',e)}
+  },450);
+});
 
 /* ---------- timeline ----------
    Every date on the site is derived from today, so the demo never goes stale.
@@ -1260,27 +1344,30 @@ $('doreg').onclick=async function(){
   if(email!==emailConfirm){showAuthErr('regErr','Those two emails don\'t match.');return}
   if(password.length<8){showAuthErr('regErr','Password needs to be at least 8 characters.');return}
   if(password!==passwordConfirm){showAuthErr('regErr','Those two passwords don\'t match.');return}
-  let signupChapterId=chapter_id, pendingSchool=null, pendingLocation=null;
+  let signupChapterId=chapter_id, pendingSchool=null, pendingAddress=null, pendingLat=null, pendingLng=null;
   if(chapter_id==='__req'){
-    const school=prompt('Name of your school, so we can start a chapter there:');
-    if(!school){showAuthErr('regErr','Enter your school name to continue, or pick a listed chapter instead.');return}
-    pendingSchool=school.trim();
-    const location=prompt('City and state where '+pendingSchool+' is located (e.g. "Spokane, WA") — this is what places it on the map:');
-    if(!location){showAuthErr('regErr','Enter a city and state so your chapter can be placed on the map.');return}
-    pendingLocation=location.trim();
+    pendingSchool=$('reqSchool').value.trim();
+    pendingAddress=$('reqAddress').value.trim();
+    if(!pendingSchool){showAuthErr('regErr','Enter your school name to continue, or pick a listed chapter instead.');return}
+    if(!pendingAddress){showAuthErr('regErr','Enter your school\'s address so your chapter can be placed on the map.');return}
     if(!PENDING_CHAPTER_ID){showAuthErr('regErr','Something went wrong setting up your account — try again in a moment.');return}
     signupChapterId=PENDING_CHAPTER_ID;
+    pendingLat=reqLat; pendingLng=reqLng;
   }
   this.textContent='Creating…';
   const {error}=await sb.auth.signUp({email,password,options:{data:{full_name,chapter_id:signupChapterId,pending_school_name:pendingSchool||''}}});
   this.textContent='Create account';
   if(error){showAuthErr('regErr',error.message);return}
   if(pendingSchool){
-    const coords=await geocodeLocation(pendingLocation);
+    if(pendingLat==null||pendingLng==null){
+      const coords=await geocodeLocation(pendingAddress);
+      if(coords){pendingLat=coords.lat;pendingLng=coords.lng}
+    }
     await sb.from('chapter_requests').insert({
       school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email,
-      location:pendingLocation,lat:coords?coords.lat:null,lng:coords?coords.lng:null
+      location:pendingAddress,lat:pendingLat,lng:pendingLng
     });
+    resetReqFields();
   }
   const {data:{session:s}}=await sb.auth.getSession();
   if(s){
