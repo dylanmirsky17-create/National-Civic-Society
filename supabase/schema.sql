@@ -155,6 +155,19 @@ language sql stable security definer set search_path = public as $$
   )
 $$;
 
+-- true when a motion's chapter currently has voting on, and (if set)
+-- the vote_open/vote_close window includes now — used to keep
+-- shortlist_votes writes from succeeding outside what the Vote page
+-- already shows as open
+create or replace function shortlist_voting_open(target_motion uuid) returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce(c.voting_enabled, true)
+    and (c.vote_open is null or now() >= c.vote_open)
+    and (c.vote_close is null or now() <= c.vote_close)
+  from motions m join chapters c on c.id = m.chapter_id
+  where m.id = target_motion
+$$;
+
 -- ------------------------------------------------------------
 -- new-user trigger — creates the profile row automatically so the
 -- client never has to (and never needs an insert policy for it)
@@ -233,8 +246,25 @@ create policy "meetings_leader_delete" on meetings for delete
 -- needs to show up in the Archive)
 create policy "motions_read" on motions for select
   using (shortlisted = true or chapter_id = my_chapter());
+-- the submission window was only ever checked client-side (the
+-- Submit page's label/gating); a direct API call could submit at any
+-- time regardless of the chapter's configured window, so it's
+-- enforced here too. Leaders are exempt — they add topics straight
+-- to the shortlist (the Operations "external topic" tool) through
+-- this same insert path, on their own schedule, not the member
+-- submission window.
 create policy "motions_member_insert" on motions for insert
-  with check (chapter_id = my_chapter() and submitted_by = auth.uid());
+  with check (
+    chapter_id = my_chapter() and submitted_by = auth.uid()
+    and (
+      is_leader_of(chapter_id)
+      or exists (
+        select 1 from chapters c where c.id = chapter_id
+          and (c.sub_open is null or now() >= c.sub_open)
+          and (c.sub_close is null or now() <= c.sub_close)
+      )
+    )
+  );
 create policy "motions_leader_update" on motions for update
   using (is_leader_of(chapter_id));
 create policy "motions_leader_delete" on motions for delete
@@ -250,11 +280,14 @@ create policy "motions_leader_delete" on motions for delete
 -- keeps that requirement from silently swallowing other rules.
 create policy "shortlist_votes_own_select" on shortlist_votes for select
   using (voter_id = auth.uid());
+-- same defense-in-depth as motions_member_insert above: the voting
+-- window and the chapter's voting_enabled off-switch were previously
+-- only checked client-side (loadVotePage).
 create policy "shortlist_votes_own_insert" on shortlist_votes for insert
-  with check (voter_id = auth.uid());
+  with check (voter_id = auth.uid() and shortlist_voting_open(motion_id));
 create policy "shortlist_votes_own_update" on shortlist_votes for update
   using (voter_id = auth.uid())
-  with check (voter_id = auth.uid());
+  with check (voter_id = auth.uid() and shortlist_voting_open(motion_id));
 create policy "shortlist_votes_own_delete" on shortlist_votes for delete
   using (voter_id = auth.uid());
 

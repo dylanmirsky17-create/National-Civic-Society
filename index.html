@@ -752,6 +752,8 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="submit" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k" id="subK">Submit a topic</div><h2>Submit a topic</h2>
     <p>The chair shortlists three. The society votes on those. Write a claim someone could stand up and deny — one sentence, specific enough that a person could actually take the other side.</p></div>
+  <p class="note" id="submitClosedNote" style="display:none"></p>
+  <div id="submitFormWrap">
   <div class="reqch" style="margin-bottom:24px">
     <div class="rt2">What makes a topic work</div>
     <div class="rw2">Broad enough to open onto several arguments, not just one study or figure. Genuinely contested in your room — ask around before submitting. Avoid framing it as "___ does more harm than good," which tends to collapse into a contest of anecdotes. A trade-off ("X is worth the cost of Y") or a question of whether something is still necessary usually produces a stronger debate than a straight yes/no.</div>
@@ -763,6 +765,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
     <button class="btn" id="subbtn">Submit</button>
     <span class="quota" id="subquota">1 of 2 submissions used this cycle</span>
+  </div>
   </div>
 </div></div>
 
@@ -1494,7 +1497,7 @@ function go(p){
   });
   document.querySelectorAll('.page').forEach(x=>x.classList.toggle('on',x.id===p));
   if(p==='vote')loadVotePage();
-  if(p==='submit')refreshSubQuota();
+  if(p==='submit')loadSubmitPage();
   if(p==='account')loadAccountPage();
   if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name}
   if(p==='home'&&profile){refreshCurrentMeeting().then(renderLiveBallot);renderHomeShortlist()}
@@ -1585,8 +1588,37 @@ async function refreshSubQuota(){
     .eq('submitted_by',profile.id).eq('shortlisted',false);
   $('subquota').textContent=(count||0)+' of 2 submissions used this cycle';
 }
+async function refreshSubSettings(){
+  // same staleness concern as refreshVotingSettings — a leader can
+  // move the submission window from another device at any time.
+  if(!profile)return;
+  const {data:ch}=await sb.from('chapters').select('sub_open,sub_close').eq('id',activeChapterId()).single();
+  if(!ch)return;
+  SUB_OPEN=ch.sub_open?new Date(ch.sub_open):null;
+  if(ch.sub_close) SUB_CLOSE=new Date(ch.sub_close);
+}
+async function loadSubmitPage(){
+  if(!profile)return;
+  await refreshSubSettings();
+  const now=new Date();
+  const closedBefore=SUB_OPEN&&now<SUB_OPEN, closedAfter=SUB_CLOSE&&now>SUB_CLOSE;
+  const note=$('submitClosedNote');
+  if(closedBefore||closedAfter){
+    note.textContent=closedBefore?('Submissions open '+fFull(SUB_OPEN)+'.'):('Submissions closed '+fFull(SUB_CLOSE)+'.');
+    note.style.display='';
+    $('submitFormWrap').style.display='none';
+    $('subK').textContent=closedBefore?'Not open yet':'Submissions closed';
+    return;
+  }
+  note.style.display='none';
+  $('submitFormWrap').style.display='';
+  $('subK').textContent=SUB_CLOSE?('Open until '+fDay(SUB_CLOSE)):'Submit a topic';
+  refreshSubQuota();
+}
 $('subbtn').onclick=async function(){
   if(!profile)return;
+  const now=new Date();
+  if((SUB_OPEN&&now<SUB_OPEN)||(SUB_CLOSE&&now>SUB_CLOSE)){alert('Submissions are closed right now.');return}
   const claim=$('m1').value.trim(), rationale=$('m2').value.trim();
   if(!claim){$('m1').focus();return}
   this.disabled=true;this.textContent='Submitting…';
