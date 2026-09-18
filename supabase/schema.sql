@@ -23,8 +23,12 @@ create table chapters (
   status chapter_status not null default 'inquiry',
   room text default 'TBD',
   meeting_length_min int not null default 40,
-  vote_close timestamptz,          -- shortlist-vote deadline for the next topic
-  sub_close timestamptz,           -- topic-submission deadline for the meeting after that
+  sub_open timestamptz,             -- topic-submission window opens
+  sub_close timestamptz,            -- topic-submission deadline for the meeting after that
+  vote_open timestamptz,            -- shortlist-vote window opens
+  vote_close timestamptz,           -- shortlist-vote deadline for the next topic
+  shortlist_announce_at timestamptz, -- when the 3 shortlisted topics go public on Home
+  voting_enabled boolean not null default true, -- off = leader picks the topic directly, no member vote
   run_sheet jsonb,                 -- customized meeting formats + which one is active; null = built-in defaults
   is_placeholder boolean not null default false,  -- true only for the shared "Pending Chapter" holding pen
   lat double precision,
@@ -232,6 +236,8 @@ create policy "motions_read" on motions for select
 create policy "motions_member_insert" on motions for insert
   with check (chapter_id = my_chapter() and submitted_by = auth.uid());
 create policy "motions_leader_update" on motions for update
+  using (is_leader_of(chapter_id));
+create policy "motions_leader_delete" on motions for delete
   using (is_leader_of(chapter_id));
 
 -- shortlist_votes / ballots: you can only ever touch your own

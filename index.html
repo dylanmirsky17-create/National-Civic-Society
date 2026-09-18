@@ -533,6 +533,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
       <button role="tab" aria-selected="false" data-p="chair" class="lead ldr">Chair</button>
       <button role="tab" aria-selected="false" data-p="admin" class="lead ldr">Admin</button>
       <button role="tab" aria-selected="false" data-p="settings" class="lead ldr">Settings</button>
+      <button role="tab" aria-selected="false" data-p="operations" class="lead ldr">Operations</button>
       <button role="tab" aria-selected="false" data-p="requests" class="lead natadmin">Requests</button>
     </nav>
   </div>
@@ -632,6 +633,14 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
         <button class="btn gh" data-side="undecided">Undecided</button>
       </div>
       <div class="note" id="liveBallotStatus"></div>
+    </div>
+
+    <div class="acard" id="homeShortlistBox" style="display:none;margin-top:20px">
+      <div class="ahd"><span class="t">Vote on the next topic</span><span class="n" id="homeShortlistNote"></span></div>
+      <div class="abody">
+        <div id="homeShortlistList" class="rows"></div>
+        <button class="btn" id="homeShortlistGoVote" style="margin-top:12px">Go vote</button>
+      </div>
     </div>
 
     <h3 class="sec">Speaking</h3>
@@ -857,34 +866,13 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <div class="cnext"><span>Next up</span><b id="upnext">Opening vote</b></div>
   </div>
   <div class="runlist" id="runlist"></div>
-  <p class="note" style="margin-top:16px">One strike: finish the sentence and conclude. Two strikes: time has ended. Timings are set in Admin.</p>
-
-  <div class="acard" style="margin-top:24px">
-    <div class="ahd"><span class="t">Live ballot</span><span class="n" id="ballotStageNote">No vote open</span></div>
-    <div class="abody">
-      <p class="note" style="margin-bottom:14px">Members vote from their own phone on the Home page while a stage is open. Nobody, including you, can see how any individual voted — only the totals below.</p>
-      <div id="ballotCounts" class="rows" style="margin-bottom:16px"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" id="openBefore">Open "before" vote</button>
-        <button class="btn" id="openAfter">Open "after" vote</button>
-        <button class="btn gh" id="closeVote">Close voting</button>
-        <button class="btn gold" id="markComplete">Mark meeting complete</button>
-      </div>
-    </div>
-  </div>
+  <p class="note" style="margin-top:16px">One strike: finish the sentence and conclude. Two strikes: time has ended. Timings are set in Admin. The live before/after vote is run from <b>Operations</b>.</p>
 </div></div>
 
 <!-- ---- ADMIN ---- -->
 <div class="page" id="admin" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k" id="adminChapterK">Leaders only</div><h2>Admin</h2>
-    <p>Settings here apply to your chapter only.</p></div>
-
-  <div class="acard">
-    <div class="ahd"><span class="t">Topic voting</span><span class="n">Live counts for the current shortlist</span></div>
-    <div class="abody">
-      <div id="voteCountsList"><p class="note">Loading…</p></div>
-    </div>
-  </div>
+    <p>Settings here apply to your chapter only. Running a debate cycle — topics, voting, the live ballot — is all in <b>Operations</b> now.</p></div>
 
   <div class="acard">
     <div class="ahd"><span class="t">Meeting formats & run sheet</span><span class="n" id="tnote">Applies to the Chair console</span></div>
@@ -942,16 +930,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     </div>
   </div>
 
-  <div class="acard">
-    <div class="ahd"><span class="t">Voting &amp; submissions</span><span class="n">For the next meeting's topic</span></div>
-    <div class="abody">
-      <div class="field"><label for="setVote">Shortlist voting closes</label><input id="setVote" type="datetime-local">
-        <div class="h">When members can no longer vote on the current shortlist of submitted topics.</div></div>
-      <div class="field"><label for="setSub">Topic submissions close</label><input id="setSub" type="datetime-local">
-        <div class="h">When members can no longer submit new topics for the following meeting.</div></div>
-      <button class="btn" id="setVoteSave">Save</button>
-    </div>
-  </div>
+  <p class="note" style="margin-bottom:24px">Looking for topic submissions or voting? Those moved to <b>Operations</b> — everything about running a debate cycle lives there now, in one spot.</p>
 
   <div class="acard">
     <div class="ahd"><span class="t">Meeting details</span><span class="n">Applies chapter-wide</span></div>
@@ -960,6 +939,62 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
       <div class="field"><label for="setLen">Meeting length (minutes)</label><input id="setLen" type="number" value="40" min="10">
         <div class="h">The Chair console's buffer total in Admin is measured against this.</div></div>
       <button class="btn" id="setMiscSave">Save</button>
+    </div>
+  </div>
+</div></div>
+
+<!-- ---- OPERATIONS ---- -->
+<div class="page" id="operations" role="tabpanel"><div class="wrap">
+  <div class="ph"><div class="k" id="opsChapterK">Leaders only</div><h2>Operations</h2>
+    <p>Everything about running the current debate cycle — topic submissions, voting, and the live in-meeting ballot — lives here, in one place.</p></div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Cycle schedule</span><span class="n">One spot for submissions &amp; voting</span></div>
+    <div class="abody">
+      <label style="display:flex;gap:8px;align-items:center;margin-bottom:20px;font-size:14.5px">
+        <input type="checkbox" id="opVotingEnabled"> Members vote on the topic this cycle
+      </label>
+      <p class="note" id="opVotingOffNote" style="display:none;margin-bottom:18px">Member voting is off — submit-and-shortlist still works, but you'll pick the final topic yourself below instead of opening it to a vote.</p>
+      <div class="field"><label for="opSubOpen">Submissions open</label><input id="opSubOpen" type="datetime-local">
+        <div class="h">When members can start submitting topics for the next open meeting.</div></div>
+      <div class="field"><label for="opSubClose">Submissions close</label><input id="opSubClose" type="datetime-local">
+        <div class="h">After this, no new topics can be submitted.</div></div>
+      <div class="field"><label for="opAnnounce">Shortlist announced</label><input id="opAnnounce" type="datetime-local">
+        <div class="h">When the shortlisted topics become visible on the Home page, so members can prepare.</div></div>
+      <div class="field"><label for="opVoteOpen">Voting opens</label><input id="opVoteOpen" type="datetime-local">
+        <div class="h">When members can start voting on the shortlisted topics.</div></div>
+      <div class="field"><label for="opVoteClose">Voting closes</label><input id="opVoteClose" type="datetime-local">
+        <div class="h">After this, pick the winner below and set it as the meeting's topic.</div></div>
+      <button class="btn" id="opScheduleSave">Save schedule</button>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Submitted topics</span><span class="n">The raw pool — pick up to 3 to shortlist</span></div>
+    <div class="abody">
+      <div id="opPoolList"><p class="note">Loading…</p></div>
+      <button class="btn gh" id="opAddTopic" style="margin-top:12px">+ Add a topic directly</button>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Shortlisted — up for vote</span><span class="n">Live rankings</span></div>
+    <div class="abody">
+      <div id="opShortlistList"><p class="note">Loading…</p></div>
+    </div>
+  </div>
+
+  <div class="acard">
+    <div class="ahd"><span class="t">Live ballot</span><span class="n" id="ballotStageNote">No vote open</span></div>
+    <div class="abody">
+      <p class="note" style="margin-bottom:14px">Members vote from their own phone on the Home page while a stage is open. Nobody, including you, can see how any individual voted — only the totals below.</p>
+      <div id="ballotCounts" class="rows" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="openBefore">Open "before" vote</button>
+        <button class="btn" id="openAfter">Open "after" vote</button>
+        <button class="btn gh" id="closeVote">Close voting</button>
+        <button class="btn gold" id="markComplete">Mark meeting complete</button>
+      </div>
     </div>
   </div>
 </div></div>
@@ -1030,8 +1065,9 @@ const fFull =d=>DOWF[d.getDay()]+' '+d.getDate()+' '+MONF[d.getMonth()];
 const fArc  =d=>d.getDate()+' '+MON[d.getMonth()]+' '+d.getFullYear();
 const fDay  =d=>d.getDate()+' '+MONF[d.getMonth()];
 const fClock=d=>{const h=d.getHours();return (h%12||12)+':'+String(d.getMinutes()).padStart(2,'0')+' '+(h<12?'AM':'PM')};
-let VOTE_CLOSE=addDays(MTG[0],9);    // shortlist ballot for Meeting 5 — editable in Settings
-let SUB_CLOSE =addDays(MTG[0],23);   // topic submissions for Meeting 6 — editable in Settings
+let VOTE_CLOSE=addDays(MTG[0],9);    // shortlist ballot for Meeting 5 — editable in Operations
+let SUB_CLOSE =addDays(MTG[0],23);   // topic submissions for Meeting 6 — editable in Operations
+let SUB_OPEN=null, VOTE_OPEN=null, SHORTLIST_ANNOUNCE=null, VOTING_ENABLED=true;
 function calcSeason(){   // recomputed each call so it stays right if the schedule moves
   const y=MTG[0].getFullYear(),s=MTG[0].getMonth()>=6?y:y-1;   // season rolls in July
   return s+'–'+String(s+1).slice(2);
@@ -1262,7 +1298,7 @@ function applyAuth(){
       $('chapterSwitchWrap').style.display='none';
     }
     loadChapterSettings();   // read-only for everyone; only leaders can save changes (enforced by RLS)
-    if(lead){loadReports();loadRoster();loadVoteCounts();}
+    if(lead){loadReports();loadRoster();}
   }
   renderSchedule();   // both functions branch on S.auth themselves — real data
   renderArc('mine');  // for members, illustrative examples for signed-out guests
@@ -1302,9 +1338,10 @@ function go(p){
   if(p==='vote')loadVotePage();
   if(p==='submit')refreshSubQuota();
   if(p==='account')loadAccountPage();
-  if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name;refreshCurrentMeeting().then(renderChairBallot)}
-  if(p==='home'&&profile)refreshCurrentMeeting().then(renderLiveBallot);
-  if(p==='admin'&&isLead){loadReports();loadRoster();loadVoteCounts();}
+  if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name}
+  if(p==='home'&&profile){refreshCurrentMeeting().then(renderLiveBallot);renderHomeShortlist()}
+  if(p==='operations'&&isLead){loadOperationsPage();refreshCurrentMeeting().then(renderChairBallot)}
+  if(p==='admin'&&isLead){loadReports();loadRoster();}
   if(p==='requests'&&effectiveRole()==='national_admin')loadChapterRequests();
   window.scrollTo(0,0);
 }
@@ -1341,9 +1378,14 @@ tickCd();
 /* ---------- vote (shortlist: which submitted motion runs next) ---------- */
 async function loadVotePage(){
   if(!profile){return}
+  await refreshVotingSettings();
+  if(!VOTING_ENABLED){$('voteList').innerHTML='<p class="note">Member voting is off this cycle — your chapter leader is picking the topic directly.</p>';return}
+  const now=new Date();
+  if(VOTE_OPEN&&now<VOTE_OPEN){$('voteList').innerHTML='<p class="note">Voting opens '+fFull(VOTE_OPEN)+'.</p>';return}
+  if(VOTE_CLOSE&&now>VOTE_CLOSE){$('voteList').innerHTML='<p class="note">Voting closed '+fFull(VOTE_CLOSE)+'. Check Home for the topic.</p>';return}
   const {data:motions,error}=await sb.from('motions')
     .select('id,claim,rationale,submitted_by,profiles(full_name)')
-    .eq('chapter_id',profile.chapter_id).eq('shortlisted',false)
+    .eq('chapter_id',profile.chapter_id).eq('shortlisted',true)
     .order('created_at',{ascending:false});
   if(error){$('voteList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
   const {data:mine}=await sb.from('shortlist_votes').select('motion_id').eq('voter_id',profile.id);
@@ -1787,15 +1829,6 @@ $('schedDefault').onclick=function(){
   for(let k=0;k<MTG.length;k++) MTG[k]=addDays(f,k*14);
   buildSchedEd();fillDates();
 };
-$('setVoteSave').onclick=async function(){
-  if(!profile)return;
-  if($('setVote').value) VOTE_CLOSE=new Date($('setVote').value);
-  if($('setSub').value)  SUB_CLOSE =new Date($('setSub').value);
-  fillDates();
-  this.textContent='Saving…';
-  await sb.from('chapters').update({vote_close:VOTE_CLOSE.toISOString(),sub_close:SUB_CLOSE.toISOString()}).eq('id',activeChapterId());
-  this.textContent='Saved';setTimeout(()=>this.textContent='Save',1200);
-};
 $('setMiscSave').onclick=async function(){
   if(!profile)return;
   SET.room=$('setRoom').value.trim()||SET.room;
@@ -1815,8 +1848,6 @@ function applySettings(){
 }
 function buildSettings(){
   buildSchedEd();
-  $('setVote').value=toLocalInput(VOTE_CLOSE);
-  $('setSub').value=toLocalInput(SUB_CLOSE);
   $('setRoom').value=SET.room;
   $('setLen').value=SET.lenMin;
 }
@@ -1830,6 +1861,10 @@ async function loadChapterSettings(){
     SET.lenMin=ch.meeting_length_min||SET.lenMin;
     if(ch.vote_close) VOTE_CLOSE=new Date(ch.vote_close);
     if(ch.sub_close)  SUB_CLOSE=new Date(ch.sub_close);
+    SUB_OPEN=ch.sub_open?new Date(ch.sub_open):null;
+    VOTE_OPEN=ch.vote_open?new Date(ch.vote_open):null;
+    SHORTLIST_ANNOUNCE=ch.shortlist_announce_at?new Date(ch.shortlist_announce_at):null;
+    VOTING_ENABLED=ch.voting_enabled!==false;
     if(ch.run_sheet&&ch.run_sheet.formats){
       FORMATS=Object.assign(JSON.parse(JSON.stringify(FORMATS_DEFAULT)),ch.run_sheet.formats);
       ACTIVE_FORMAT=ch.run_sheet.active&&FORMATS[ch.run_sheet.active]?ch.run_sheet.active:'main';
@@ -1853,7 +1888,8 @@ async function loadChapterSettings(){
   ['adminChapterK','settingsChapterK'].forEach(id=>{const e=$(id); if(e) e.textContent='Leaders only'+(chapterName?' · '+chapterName.name:'')});
   fillDates();buildSettings();applySettings();
   renderLiveBallot();
-  if(document.querySelector('.page.on')?.id==='chair') renderChairBallot();
+  renderHomeShortlist();
+  if(document.querySelector('.page.on')?.id==='operations') renderChairBallot();
 }
 
 /* ---------- live in-meeting ballot (the real "before / after" QR vote) ----------
@@ -1919,6 +1955,22 @@ async function renderLiveBallot(){
   document.querySelectorAll('#liveBallotBox [data-side]').forEach(b=>b.classList.toggle('on',!!mine&&mine.side===b.dataset.side));
   $('liveBallotStatus').textContent=mine?('You voted: '+mine.side):'You haven\'t voted this stage yet.';
 }
+
+async function renderHomeShortlist(){
+  const box=$('homeShortlistBox');
+  if(!profile||!box)return;
+  await refreshVotingSettings();
+  const now=new Date();
+  if(!VOTING_ENABLED||(SHORTLIST_ANNOUNCE&&now<SHORTLIST_ANNOUNCE)){box.style.display='none';return}
+  const {data:motions}=await sb.from('motions').select('id,claim').eq('chapter_id',activeChapterId()).eq('shortlisted',true);
+  if(!motions||!motions.length){box.style.display='none';return}
+  box.style.display='';
+  $('homeShortlistNote').textContent=VOTE_CLOSE?('Voting closes '+fDay(VOTE_CLOSE)):'';
+  $('homeShortlistList').innerHTML=motions.map(m=>
+    '<div class="row"><div class="d"></div><div class="m" style="font-size:16px">'+m.claim+'</div><div class="s"></div></div>'
+  ).join('');
+}
+$('homeShortlistGoVote').onclick=()=>go('vote');
 document.querySelectorAll('#liveBallotBox [data-side]').forEach(b=>b.onclick=async()=>{
   const m=CHAPTER_MEETINGS[0];
   if(!m||!m.voting_stage||!profile)return;
@@ -1930,6 +1982,19 @@ document.querySelectorAll('#liveBallotBox [data-side]').forEach(b=>b.onclick=asy
   b.disabled=false;
   renderLiveBallot();
 });
+async function refreshVotingSettings(){
+  // same staleness problem as the live ballot: a leader can flip
+  // voting on/off or move the vote window from a different device at
+  // any time, so this re-checks fresh instead of trusting whatever
+  // was loaded at login.
+  if(!profile)return;
+  const {data:ch}=await sb.from('chapters').select('voting_enabled,vote_open,vote_close,shortlist_announce_at').eq('id',activeChapterId()).single();
+  if(!ch)return;
+  VOTING_ENABLED=ch.voting_enabled!==false;
+  VOTE_OPEN=ch.vote_open?new Date(ch.vote_open):null;
+  if(ch.vote_close) VOTE_CLOSE=new Date(ch.vote_close);
+  SHORTLIST_ANNOUNCE=ch.shortlist_announce_at?new Date(ch.shortlist_announce_at):null;
+}
 async function refreshCurrentMeeting(){
   // lighter than loadChapterSettings() — just re-checks which meeting
   // is current and its live voting_stage, for the 6s poll below. A
@@ -1946,8 +2011,9 @@ setInterval(async()=>{
   if(!profile)return;
   const cur=document.querySelector('.page.on');
   if(!cur)return;
-  if(cur.id==='chair'){await refreshCurrentMeeting();renderChairBallot()}
-  if(cur.id==='home'){await refreshCurrentMeeting();renderLiveBallot()}
+  if(cur.id==='operations'){await refreshCurrentMeeting();renderChairBallot()}
+  if(cur.id==='home'){await refreshCurrentMeeting();renderLiveBallot();renderHomeShortlist()}
+  if(cur.id==='vote'){loadVotePage()}
 },6000);
 
 /* ---------- account (real profile, not a demo identity) ---------- */
@@ -2064,26 +2130,117 @@ async function loadRoster(){
 }
 
 /* ---------- admin: shortlist vote counts ---------- */
-async function loadVoteCounts(){
+/* ---------- operations: the whole topic lifecycle in one place ---------- */
+async function loadOperationsPage(){
+  const chapterName=CHAPTERS.find(c=>c.id===activeChapterId());
+  const k=$('opsChapterK'); if(k) k.textContent='Leaders only'+(chapterName?' · '+chapterName.name:'');
+  $('opVotingEnabled').checked=VOTING_ENABLED;
+  $('opVotingOffNote').style.display=VOTING_ENABLED?'none':'';
+  $('opSubOpen').value=SUB_OPEN?toLocalInput(SUB_OPEN):'';
+  $('opSubClose').value=SUB_CLOSE?toLocalInput(SUB_CLOSE):'';
+  $('opAnnounce').value=SHORTLIST_ANNOUNCE?toLocalInput(SHORTLIST_ANNOUNCE):'';
+  $('opVoteOpen').value=VOTE_OPEN?toLocalInput(VOTE_OPEN):'';
+  $('opVoteClose').value=VOTE_CLOSE?toLocalInput(VOTE_CLOSE):'';
+  loadTopicPool();
+  loadShortlist();
+}
+$('opVotingEnabled').onchange=function(){ $('opVotingOffNote').style.display=this.checked?'none':''; };
+$('opScheduleSave').onclick=async function(){
+  if(!profile)return;
+  const toIso=v=>v?new Date(v).toISOString():null;
+  const payload={
+    voting_enabled:$('opVotingEnabled').checked,
+    sub_open:toIso($('opSubOpen').value),
+    sub_close:toIso($('opSubClose').value),
+    shortlist_announce_at:toIso($('opAnnounce').value),
+    vote_open:toIso($('opVoteOpen').value),
+    vote_close:toIso($('opVoteClose').value)
+  };
+  this.textContent='Saving…';
+  const {error}=await sb.from('chapters').update(payload).eq('id',activeChapterId());
+  this.textContent=error?'Save schedule':'Saved';
+  if(error){alert(error.message);return}
+  setTimeout(()=>{this.textContent='Save schedule'},1200);
+  await loadChapterSettings();
+};
+
+async function loadTopicPool(){
   const chId=activeChapterId();
   if(!chId)return;
   const {data:motions,error}=await sb.from('motions').select('id,claim,profiles(full_name)')
     .eq('chapter_id',chId).eq('shortlisted',false).order('created_at',{ascending:false});
-  if(error){$('voteCountsList').innerHTML='<p class="note">Could not load votes.</p>';return}
-  if(!motions||!motions.length){$('voteCountsList').innerHTML='<p class="note">No open topics right now.</p>';return}
+  if(error){$('opPoolList').innerHTML='<p class="note">Could not load submissions.</p>';return}
+  if(!motions||!motions.length){$('opPoolList').innerHTML='<p class="note">No submissions waiting right now.</p>';return}
+  $('opPoolList').innerHTML=motions.map(m=>
+    '<div class="row"><div class="d"></div>'+
+    '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
+    '<div class="s" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
+    '<button class="btn" data-shortlist="'+m.id+'" style="font-size:9px;padding:6px 10px">Shortlist</button>'+
+    '<button class="btn gh" data-removepool="'+m.id+'" style="font-size:9px;padding:6px 10px">Remove</button></div></div>'
+  ).join('');
+  document.querySelectorAll('#opPoolList [data-shortlist]').forEach(b=>b.onclick=async()=>{
+    const {count}=await sb.from('motions').select('id',{count:'exact',head:true}).eq('chapter_id',chId).eq('shortlisted',true);
+    if((count||0)>=3 && !confirm('There are already 3 topics shortlisted — shortlist this one too anyway?'))return;
+    await sb.from('motions').update({shortlisted:true}).eq('id',b.dataset.shortlist);
+    loadTopicPool();loadShortlist();
+  });
+  document.querySelectorAll('#opPoolList [data-removepool]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Remove this submitted topic? This can\'t be undone.'))return;
+    await sb.from('motions').delete().eq('id',b.dataset.removepool);
+    loadTopicPool();
+  });
+}
+$('opAddTopic').onclick=async function(){
+  if(!profile)return;
+  const claim=prompt('The topic, as a plain one-sentence claim:');
+  if(!claim)return;
+  const {error}=await sb.from('motions').insert({chapter_id:activeChapterId(),submitted_by:profile.id,claim:claim.trim(),shortlisted:true});
+  if(error){alert(error.message);return}
+  loadTopicPool();loadShortlist();
+};
+
+async function loadShortlist(){
+  const chId=activeChapterId();
+  if(!chId)return;
+  const {data:motions,error}=await sb.from('motions').select('id,claim,profiles(full_name)')
+    .eq('chapter_id',chId).eq('shortlisted',true).order('created_at',{ascending:false});
+  if(error){$('opShortlistList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
+  if(!motions||!motions.length){$('opShortlistList').innerHTML='<p class="note">Nothing shortlisted yet — pick up to 3 from the submitted topics above.</p>';return}
   const ids=motions.map(m=>m.id);
   const {data:counts}=await sb.from('motion_vote_counts').select('*').in('motion_id',ids);
   const countFor=id=>{const c=(counts||[]).find(x=>x.motion_id===id);return c?c.votes:0};
-  $('voteCountsList').innerHTML=motions.map(m=>
+  const ranked=[...motions].sort((a,b)=>countFor(b.id)-countFor(a.id));
+  $('opShortlistList').innerHTML=ranked.map(m=>
     '<div class="row"><div class="d tn">'+countFor(m.id)+' vote'+(countFor(m.id)===1?'':'s')+'</div>'+
     '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
-    '<div class="s"><button class="btn gh" data-resetvote="'+m.id+'" style="font-size:9px;padding:6px 10px">Reset votes</button></div></div>'
+    '<div class="s" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
+    '<button class="btn gold" data-setmeeting="'+m.id+'" style="font-size:9px;padding:6px 10px">Set as meeting topic</button>'+
+    '<button class="btn gh" data-unshortlist="'+m.id+'" style="font-size:9px;padding:6px 10px">Un-shortlist</button>'+
+    '<button class="btn gh" data-resetvote="'+m.id+'" style="font-size:9px;padding:6px 10px">Reset votes</button>'+
+    '<button class="btn gh" data-removesl="'+m.id+'" style="font-size:9px;padding:6px 10px">Remove</button></div></div>'
   ).join('');
-  document.querySelectorAll('#voteCountsList [data-resetvote]').forEach(b=>b.onclick=async()=>{
+  document.querySelectorAll('#opShortlistList [data-setmeeting]').forEach(b=>b.onclick=async()=>{
+    const mt=CHAPTER_MEETINGS[0];
+    if(!mt){alert('No meeting scheduled yet — add one in Settings → Debate schedule first.');return}
+    if(!confirm('Set this as the topic for the next meeting?'))return;
+    await sb.from('meetings').update({motion_id:b.dataset.setmeeting}).eq('id',mt.id);
+    await loadChapterSettings();
+    loadShortlist();
+  });
+  document.querySelectorAll('#opShortlistList [data-unshortlist]').forEach(b=>b.onclick=async()=>{
+    await sb.from('motions').update({shortlisted:false}).eq('id',b.dataset.unshortlist);
+    loadTopicPool();loadShortlist();
+  });
+  document.querySelectorAll('#opShortlistList [data-removesl]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Remove this topic entirely? This can\'t be undone.'))return;
+    await sb.from('motions').delete().eq('id',b.dataset.removesl);
+    loadShortlist();
+  });
+  document.querySelectorAll('#opShortlistList [data-resetvote]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Clear all votes on this topic? This can\'t be undone.'))return;
     const {error}=await sb.rpc('reset_shortlist_votes',{target_motion:b.dataset.resetvote});
     if(error)alert(error.message);
-    loadVoteCounts();
+    loadShortlist();
   });
 }
 
