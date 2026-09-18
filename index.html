@@ -2167,7 +2167,7 @@ $('opScheduleSave').onclick=async function(){
 async function loadTopicPool(){
   const chId=activeChapterId();
   if(!chId)return;
-  const {data:motions,error}=await sb.from('motions').select('id,claim,profiles(full_name)')
+  const {data:motions,error}=await sb.from('motions').select('id,claim,rationale,profiles(full_name)')
     .eq('chapter_id',chId).eq('shortlisted',false).order('created_at',{ascending:false});
   if(error){$('opPoolList').innerHTML='<p class="note">Could not load submissions.</p>';return}
   if(!motions||!motions.length){$('opPoolList').innerHTML='<p class="note">No submissions waiting right now.</p>';return}
@@ -2176,6 +2176,7 @@ async function loadTopicPool(){
     '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
     '<div class="s" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
     '<button class="btn" data-shortlist="'+m.id+'" style="font-size:9px;padding:6px 10px">Shortlist</button>'+
+    '<button class="btn gh" data-editpool="'+m.id+'" style="font-size:9px;padding:6px 10px">Edit</button>'+
     '<button class="btn gh" data-removepool="'+m.id+'" style="font-size:9px;padding:6px 10px">Remove</button></div></div>'
   ).join('');
   document.querySelectorAll('#opPoolList [data-shortlist]').forEach(b=>b.onclick=async()=>{
@@ -2184,11 +2185,25 @@ async function loadTopicPool(){
     await sb.from('motions').update({shortlisted:true}).eq('id',b.dataset.shortlist);
     loadTopicPool();loadShortlist();
   });
+  document.querySelectorAll('#opPoolList [data-editpool]').forEach(b=>b.onclick=async()=>{
+    const m=motions.find(x=>x.id===b.dataset.editpool);
+    await editMotion(m,loadTopicPool);
+  });
   document.querySelectorAll('#opPoolList [data-removepool]').forEach(b=>b.onclick=async()=>{
     if(!confirm('Remove this submitted topic? This can\'t be undone.'))return;
     await sb.from('motions').delete().eq('id',b.dataset.removepool);
     loadTopicPool();
   });
+}
+async function editMotion(m,reload){
+  if(!m)return;
+  const newClaim=prompt('Edit the topic:',m.claim);
+  if(newClaim===null)return;
+  const newRationale=prompt('Edit "why it matters" (optional):',m.rationale||'');
+  if(newRationale===null)return;
+  const {error}=await sb.from('motions').update({claim:newClaim.trim(),rationale:newRationale.trim()||null}).eq('id',m.id);
+  if(error){alert(error.message);return}
+  reload();
 }
 $('opAddTopic').onclick=async function(){
   if(!profile)return;
@@ -2202,7 +2217,7 @@ $('opAddTopic').onclick=async function(){
 async function loadShortlist(){
   const chId=activeChapterId();
   if(!chId)return;
-  const {data:motions,error}=await sb.from('motions').select('id,claim,profiles(full_name)')
+  const {data:motions,error}=await sb.from('motions').select('id,claim,rationale,profiles(full_name)')
     .eq('chapter_id',chId).eq('shortlisted',true).order('created_at',{ascending:false});
   if(error){$('opShortlistList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
   if(!motions||!motions.length){$('opShortlistList').innerHTML='<p class="note">Nothing shortlisted yet — pick up to 3 from the submitted topics above.</p>';return}
@@ -2215,10 +2230,15 @@ async function loadShortlist(){
     '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
     '<div class="s" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
     '<button class="btn gold" data-setmeeting="'+m.id+'" style="font-size:9px;padding:6px 10px">Set as meeting topic</button>'+
+    '<button class="btn gh" data-editsl="'+m.id+'" style="font-size:9px;padding:6px 10px">Edit</button>'+
     '<button class="btn gh" data-unshortlist="'+m.id+'" style="font-size:9px;padding:6px 10px">Un-shortlist</button>'+
     '<button class="btn gh" data-resetvote="'+m.id+'" style="font-size:9px;padding:6px 10px">Reset votes</button>'+
     '<button class="btn gh" data-removesl="'+m.id+'" style="font-size:9px;padding:6px 10px">Remove</button></div></div>'
   ).join('');
+  document.querySelectorAll('#opShortlistList [data-editsl]').forEach(b=>b.onclick=async()=>{
+    const m=motions.find(x=>x.id===b.dataset.editsl);
+    await editMotion(m,loadShortlist);
+  });
   document.querySelectorAll('#opShortlistList [data-setmeeting]').forEach(b=>b.onclick=async()=>{
     const mt=CHAPTER_MEETINGS[0];
     if(!mt){alert('No meeting scheduled yet — add one in Settings → Debate schedule first.');return}
