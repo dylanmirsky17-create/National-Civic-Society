@@ -1582,11 +1582,16 @@ async function loadVotePage(){
 }
 
 /* ---------- submit a topic ---------- */
+let SUB_QUOTA_USED=0;
 async function refreshSubQuota(){
   if(!profile)return;
-  const {count}=await sb.from('motions').select('id',{count:'exact',head:true})
-    .eq('submitted_by',profile.id).eq('shortlisted',false);
-  $('subquota').textContent=(count||0)+' of 2 submissions used this cycle';
+  let q=sb.from('motions').select('id',{count:'exact',head:true})
+    .eq('submitted_by',profile.id).eq('chapter_id',profile.chapter_id).eq('shortlisted',false);
+  if(SUB_OPEN) q=q.gte('created_at',SUB_OPEN.toISOString());
+  const {count}=await q;
+  SUB_QUOTA_USED=count||0;
+  $('subquota').textContent=SUB_QUOTA_USED+' of 2 submissions used this cycle';
+  $('subbtn').disabled=SUB_QUOTA_USED>=2;
 }
 async function refreshSubSettings(){
   // same staleness concern as refreshVotingSettings — a leader can
@@ -1619,6 +1624,7 @@ $('subbtn').onclick=async function(){
   if(!profile)return;
   const now=new Date();
   if((SUB_OPEN&&now<SUB_OPEN)||(SUB_CLOSE&&now>SUB_CLOSE)){alert('Submissions are closed right now.');return}
+  if(SUB_QUOTA_USED>=2){alert('You\'ve used both submissions for this cycle.');return}
   const claim=$('m1').value.trim(), rationale=$('m2').value.trim();
   if(!claim){$('m1').focus();return}
   this.disabled=true;this.textContent='Submitting…';
