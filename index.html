@@ -778,6 +778,9 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
     <div class="h">One sentence. It must work both ways, so someone can take the other side.</div></div>
   <div class="field"><label for="m2">Why it matters</label><textarea id="m2" rows="3" placeholder="Two sentences."></textarea>
     <div class="h">The shortlist is built from this, not from the topic alone.</div></div>
+  <div class="field"><label for="m3">For which meeting</label>
+    <select id="m3"></select>
+    <div class="h">Submit ahead for a specific meeting, even one several weeks out, not just the next one.</div></div>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
     <button class="btn" id="subbtn">Submit</button>
     <span class="quota" id="subquota">1 of 2 submissions used this cycle</span>
@@ -1097,6 +1100,8 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   <div class="acard">
     <div class="ahd"><span class="t">Submitted topics</span><span class="n">All submissions: choose up to 3 to shortlist</span></div>
     <div class="abody">
+      <div class="field" style="margin-bottom:16px"><label for="opMeetingFilter">Viewing submissions for</label>
+        <select id="opMeetingFilter"></select></div>
       <div id="opPoolList"><p class="note">Loading…</p></div>
       <button class="btn gh" id="opAddTopic" style="margin-top:12px">+ Add a topic directly</button>
     </div>
@@ -1616,10 +1621,15 @@ async function loadVotePage(){
   const now=new Date();
   if(VOTE_OPEN&&now<VOTE_OPEN){$('voteList').innerHTML='<p class="note">Voting opens '+fFull(VOTE_OPEN)+'.</p>';return}
   if(VOTE_CLOSE&&now>VOTE_CLOSE){$('voteList').innerHTML='<p class="note">Voting closed '+fFull(VOTE_CLOSE)+'. Check Home for the topic.</p>';return}
-  const {data:motions,error}=await sb.from('motions')
-    .select('id,claim,rationale,submitted_by,profiles(full_name)')
-    .eq('chapter_id',profile.chapter_id).eq('shortlisted',true)
-    .order('created_at',{ascending:false});
+  // topics can now be submitted for a specific future meeting, not
+  // just the next one — voting only ever covers what's shortlisted
+  // for the meeting actually coming up next (plus anything not yet
+  // assigned to a meeting, for backward compatibility)
+  const curMeeting=CHAPTER_MEETINGS[0];
+  let mq=sb.from('motions').select('id,claim,rationale,submitted_by,profiles(full_name)')
+    .eq('chapter_id',profile.chapter_id).eq('shortlisted',true);
+  mq=curMeeting?mq.or('meeting_id.eq.'+curMeeting.id+',meeting_id.is.null'):mq.is('meeting_id',null);
+  const {data:motions,error}=await mq.order('created_at',{ascending:false});
   if(error){$('voteList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
   const {data:mine}=await sb.from('shortlist_votes').select('motion_id').eq('voter_id',profile.id);
   const myPick=mine&&mine[0]?mine[0].motion_id:null;
@@ -1678,17 +1688,21 @@ async function loadSubmitPage(){
   note.style.display='none';
   $('submitFormWrap').style.display='';
   $('subK').textContent=SUB_CLOSE?('Open until '+fDay(SUB_CLOSE)):'Submit a topic';
+  const sel=$('m3');
+  sel.innerHTML=CHAPTER_MEETINGS.length
+    ? CHAPTER_MEETINGS.map((m,k)=>'<option value="'+m.id+'">'+fFull(new Date(m.scheduled_at))+(k===0?' (next meeting)':'')+'</option>').join('')
+    : '<option value="">Not yet scheduled</option>';
   refreshSubQuota();
 }
 $('subbtn').onclick=async function(){
   if(!profile)return;
   const now=new Date();
   if((SUB_OPEN&&now<SUB_OPEN)||(SUB_CLOSE&&now>SUB_CLOSE)){alert('Submissions are closed right now.');return}
-  if(SUB_QUOTA_USED>=2){alert('You\'ve used both submissions for this cycle.');return}
-  const claim=$('m1').value.trim(), rationale=$('m2').value.trim();
+  if(SUB_QUOTA_USED>=2){alert('You have used both submissions for this cycle.');return}
+  const claim=$('m1').value.trim(), rationale=$('m2').value.trim(), meeting_id=$('m3').value||null;
   if(!claim){$('m1').focus();return}
   this.disabled=true;this.textContent='Submitting…';
-  const {error}=await sb.from('motions').insert({chapter_id:profile.chapter_id,submitted_by:profile.id,claim,rationale});
+  const {error}=await sb.from('motions').insert({chapter_id:profile.chapter_id,submitted_by:profile.id,claim,rationale,meeting_id});
   this.disabled=false;
   if(error){this.textContent='Submit';alert(error.message);return}
   this.textContent='Submitted';this.classList.add('gh');
@@ -2351,7 +2365,10 @@ async function renderHomeShortlist(){
   await refreshVotingSettings();
   const now=new Date();
   if(!VOTING_ENABLED||(SHORTLIST_ANNOUNCE&&now<SHORTLIST_ANNOUNCE)){box.style.display='none';return}
-  const {data:motions}=await sb.from('motions').select('id,claim').eq('chapter_id',activeChapterId()).eq('shortlisted',true);
+  const curMeeting=CHAPTER_MEETINGS[0];
+  let mq=sb.from('motions').select('id,claim').eq('chapter_id',activeChapterId()).eq('shortlisted',true);
+  mq=curMeeting?mq.or('meeting_id.eq.'+curMeeting.id+',meeting_id.is.null'):mq.is('meeting_id',null);
+  const {data:motions}=await mq;
   if(!motions||!motions.length){box.style.display='none';return}
   box.style.display='';
   $('homeShortlistNote').textContent=VOTE_CLOSE?('Voting closes '+fDay(VOTE_CLOSE)):'';
@@ -2530,9 +2547,15 @@ async function loadOperationsPage(){
   $('opAnnounce').value=SHORTLIST_ANNOUNCE?toLocalInput(SHORTLIST_ANNOUNCE):'';
   $('opVoteOpen').value=VOTE_OPEN?toLocalInput(VOTE_OPEN):'';
   $('opVoteClose').value=VOTE_CLOSE?toLocalInput(VOTE_CLOSE):'';
+  const mf=$('opMeetingFilter');
+  const prev=mf.value;
+  mf.innerHTML=CHAPTER_MEETINGS.map((m,k)=>'<option value="'+m.id+'">'+fFull(new Date(m.scheduled_at))+(k===0?' (next meeting)':'')+'</option>').join('')
+    +'<option value="__unassigned">Not yet assigned to a meeting</option>';
+  mf.value=[...mf.options].some(o=>o.value===prev)?prev:(CHAPTER_MEETINGS[0]?CHAPTER_MEETINGS[0].id:'__unassigned');
   loadTopicPool();
   loadShortlist();
 }
+$('opMeetingFilter').onchange=()=>{loadTopicPool();loadShortlist()};
 $('opVotingEnabled').onchange=function(){ $('opVotingOffNote').style.display=this.checked?'none':''; };
 $('opScheduleSave').onclick=async function(){
   if(!profile)return;
@@ -2553,13 +2576,20 @@ $('opScheduleSave').onclick=async function(){
   await loadChapterSettings();
 };
 
+function opMeetingFilterValue(){
+  const v=$('opMeetingFilter').value;
+  return v==='__unassigned'?null:v;
+}
 async function loadTopicPool(){
   const chId=activeChapterId();
   if(!chId)return;
-  const {data:motions,error}=await sb.from('motions').select('id,claim,rationale,profiles(full_name)')
+  let q=sb.from('motions').select('id,claim,rationale,profiles(full_name)')
     .eq('chapter_id',chId).eq('shortlisted',false).order('created_at',{ascending:false});
+  const mid=opMeetingFilterValue();
+  q=mid?q.eq('meeting_id',mid):q.is('meeting_id',null);
+  const {data:motions,error}=await q;
   if(error){$('opPoolList').innerHTML='<p class="note">Could not load submissions.</p>';return}
-  if(!motions||!motions.length){$('opPoolList').innerHTML='<p class="note">No submissions waiting right now.</p>';return}
+  if(!motions||!motions.length){$('opPoolList').innerHTML='<p class="note">No submissions waiting for this meeting yet.</p>';return}
   $('opPoolList').innerHTML=motions.map(m=>
     '<div class="row"><div class="d"></div>'+
     '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
@@ -2598,7 +2628,7 @@ $('opAddTopic').onclick=async function(){
   if(!profile)return;
   const claim=prompt('The topic, as a plain one-sentence claim:');
   if(!claim)return;
-  const {error}=await sb.from('motions').insert({chapter_id:activeChapterId(),submitted_by:profile.id,claim:claim.trim(),shortlisted:true});
+  const {error}=await sb.from('motions').insert({chapter_id:activeChapterId(),submitted_by:profile.id,claim:claim.trim(),shortlisted:true,meeting_id:opMeetingFilterValue()});
   if(error){alert(error.message);return}
   loadTopicPool();loadShortlist();
 };
@@ -2606,10 +2636,13 @@ $('opAddTopic').onclick=async function(){
 async function loadShortlist(){
   const chId=activeChapterId();
   if(!chId)return;
-  const {data:motions,error}=await sb.from('motions').select('id,claim,rationale,profiles(full_name)')
+  let q=sb.from('motions').select('id,claim,rationale,meeting_id,profiles(full_name)')
     .eq('chapter_id',chId).eq('shortlisted',true).order('created_at',{ascending:false});
+  const mid=opMeetingFilterValue();
+  q=mid?q.eq('meeting_id',mid):q.is('meeting_id',null);
+  const {data:motions,error}=await q;
   if(error){$('opShortlistList').innerHTML='<p class="note">Could not load the shortlist.</p>';return}
-  if(!motions||!motions.length){$('opShortlistList').innerHTML='<p class="note">Nothing shortlisted yet. Choose up to 3 from the submitted topics above.</p>';return}
+  if(!motions||!motions.length){$('opShortlistList').innerHTML='<p class="note">Nothing shortlisted yet for this meeting. Choose up to 3 from the submitted topics above.</p>';return}
   const ids=motions.map(m=>m.id);
   const {data:counts}=await sb.from('motion_vote_counts').select('*').in('motion_id',ids);
   const countFor=id=>{const c=(counts||[]).find(x=>x.motion_id===id);return c?c.votes:0};
@@ -2618,7 +2651,7 @@ async function loadShortlist(){
     '<div class="row"><div class="d tn">'+countFor(m.id)+' vote'+(countFor(m.id)===1?'':'s')+'</div>'+
     '<div class="m" style="font-size:16px">'+m.claim+(m.profiles?'<small>Submitted by '+m.profiles.full_name+'</small>':'')+'</div>'+
     '<div class="s" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">'+
-    '<button class="btn gold" data-setmeeting="'+m.id+'" style="font-size:9px;padding:6px 10px">Set as meeting topic</button>'+
+    (mid?'<button class="btn gold" data-setmeeting="'+m.id+'" style="font-size:9px;padding:6px 10px">Set as meeting topic</button>':'')+
     '<button class="btn gh" data-editsl="'+m.id+'" style="font-size:9px;padding:6px 10px">Edit</button>'+
     '<button class="btn gh" data-unshortlist="'+m.id+'" style="font-size:9px;padding:6px 10px">Un-shortlist</button>'+
     '<button class="btn gh" data-resetvote="'+m.id+'" style="font-size:9px;padding:6px 10px">Reset votes</button>'+
@@ -2629,10 +2662,10 @@ async function loadShortlist(){
     await editMotion(m,loadShortlist);
   });
   document.querySelectorAll('#opShortlistList [data-setmeeting]').forEach(b=>b.onclick=async()=>{
-    const mt=CHAPTER_MEETINGS[0];
-    if(!mt){alert('No meeting scheduled yet. Add one in Settings, under Debate schedule, first.');return}
-    if(!confirm('Set this as the topic for the next meeting?'))return;
-    await sb.from('meetings').update({motion_id:b.dataset.setmeeting}).eq('id',mt.id);
+    if(!mid){alert('This submission is not assigned to a meeting yet.');return}
+    const mtLabel=(CHAPTER_MEETINGS.find(x=>x.id===mid)||{}).scheduled_at;
+    if(!confirm('Set this as the topic for '+(mtLabel?fFull(new Date(mtLabel)):'this meeting')+'?'))return;
+    await sb.from('meetings').update({motion_id:b.dataset.setmeeting}).eq('id',mid);
     await loadChapterSettings();
     loadShortlist();
   });

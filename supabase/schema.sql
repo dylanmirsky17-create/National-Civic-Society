@@ -289,6 +289,7 @@ create policy "motions_read" on motions for select
 create policy "motions_member_insert" on motions for insert
   with check (
     chapter_id = my_chapter() and submitted_by = auth.uid()
+    and (meeting_id is null or exists(select 1 from meetings mt where mt.id = meeting_id and mt.chapter_id = chapter_id))
     and (
       is_leader_of(chapter_id)
       or (
