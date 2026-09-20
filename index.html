@@ -693,6 +693,16 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
       </div>
     </div>
 
+    <div class="strip" style="margin-top:14px;flex-direction:column;align-items:flex-start;gap:10px">
+      <div class="l"><b>Want to speak?</b> Optional. The chair still picks who fills the four positions, taking into account who has spoken less recently.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="reqSpeakFor" data-side="for">Request: For <span id="reqSpeakForCount"></span></button>
+        <button class="btn" id="reqSpeakAgainst" data-side="against">Request: Against <span id="reqSpeakAgainstCount"></span></button>
+        <button class="btn gh" id="reqSpeakWithdraw" style="display:none">Withdraw request</button>
+      </div>
+      <div class="note" id="reqSpeakNote" style="margin:0"></div>
+    </div>
+
     <h3 class="sec gap">Running the room</h3>
     <div class="rows">
       <div class="row"><div class="d">Chair</div><div class="m" style="font-size:17px">Not yet assigned<small>Holds the clock and the gavel. Does not debate.</small></div><div class="s"></div></div>
@@ -959,6 +969,10 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
       <button class="btn gh" id="chairTopicSave">Set topic</button>
       <span class="note" id="chairTopicNote" style="margin:0"></span>
     </div>
+  </div>
+  <div class="field" style="margin-bottom:18px">
+    <label>Members who have requested to speak</label>
+    <div id="chairSpeakerRequests" class="rows"><p class="note">No requests yet.</p></div>
   </div>
   <div class="console">
     <div class="ctop"><span>Live</span><span class="tn" id="elapsed">00:00 / 29:30</span></div>
@@ -1529,9 +1543,9 @@ function renderPage(p){
     // format or the meeting's topic from another device (or from
     // Admin/Operations earlier in the same session but on a stale
     // CHAPTER_MEETINGS) since this page was last open
-    if(isLead) loadChapterSettings().then(loadChairTopic);
+    if(isLead) loadChapterSettings().then(()=>{loadChairTopic();loadChairSpeakerRequests()});
   }
-  if(p==='home'&&profile){refreshCurrentMeeting().then(renderLiveBallot);renderHomeShortlist()}
+  if(p==='home'&&profile){refreshCurrentMeeting().then(()=>{renderLiveBallot();renderSpeakerRequests()});renderHomeShortlist()}
   if(p==='operations'&&isLead){loadOperationsPage();refreshCurrentMeeting().then(renderChairBallot)}
   if(p==='admin'&&isLead){loadReports();loadRoster();}
   if(p==='requests'&&effectiveRole()==='national_admin')loadChapterRequests();
@@ -2083,6 +2097,18 @@ function loadChairTopic(){
   $('chairTopic').value=(m&&m.motions)?m.motions.claim:'';
   $('chairTopicNote').textContent='';
 }
+async function loadChairSpeakerRequests(){
+  const box=$('chairSpeakerRequests');
+  if(!box)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){box.innerHTML='<p class="note">No meeting scheduled yet.</p>';return}
+  const {data:rows}=await sb.from('speaker_requests').select('side,profiles(full_name)').eq('meeting_id',m.id).order('created_at');
+  if(!rows||!rows.length){box.innerHTML='<p class="note">No requests yet.</p>';return}
+  const label={for:'For',against:'Against'};
+  box.innerHTML=rows.map(r=>
+    '<div class="row"><div class="d">'+(label[r.side]||'No preference')+'</div><div class="m" style="font-size:16px">'+(r.profiles?r.profiles.full_name:'A member')+'</div><div class="s"></div></div>'
+  ).join('');
+}
 $('chairTopicSave').onclick=async function(){
   if(!profile)return;
   const m=CHAPTER_MEETINGS[0];
@@ -2279,6 +2305,46 @@ async function renderLiveBallot(){
   $('liveBallotStatus').textContent=mine?('You voted: '+mine.side):'You have not voted in this round yet.';
 }
 
+/* ---------- optional pre-meeting "request to speak" signal (Standing
+   Orders 7.1: members volunteer, the chair selects) ---------- */
+async function renderSpeakerRequests(){
+  const btnFor=$('reqSpeakFor');
+  if(!profile||!btnFor)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){btnFor.closest('.strip').style.display='none';return}
+  btnFor.closest('.strip').style.display='';
+  const {data:rows}=await sb.from('speaker_requests').select('member_id,side').eq('meeting_id',m.id);
+  const forCount=(rows||[]).filter(r=>r.side==='for').length;
+  const againstCount=(rows||[]).filter(r=>r.side==='against').length;
+  $('reqSpeakForCount').textContent=forCount?'('+forCount+')':'';
+  $('reqSpeakAgainstCount').textContent=againstCount?'('+againstCount+')':'';
+  const mine=(rows||[]).find(r=>r.member_id===profile.id);
+  $('reqSpeakFor').classList.toggle('on',mine?.side==='for');
+  $('reqSpeakAgainst').classList.toggle('on',mine?.side==='against');
+  $('reqSpeakWithdraw').style.display=mine?'':'none';
+  $('reqSpeakNote').textContent=mine?('You have requested to speak: '+mine.side+'.'):'';
+}
+async function setSpeakerRequest(side){
+  if(!profile)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){alert('No meeting scheduled yet.');return}
+  const {error}=await sb.from('speaker_requests').upsert(
+    {meeting_id:m.id,member_id:profile.id,side},{onConflict:'meeting_id,member_id'}
+  );
+  if(error){alert(error.message);return}
+  renderSpeakerRequests();
+}
+$('reqSpeakFor').onclick=()=>setSpeakerRequest('for');
+$('reqSpeakAgainst').onclick=()=>setSpeakerRequest('against');
+$('reqSpeakWithdraw').onclick=async()=>{
+  if(!profile)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m)return;
+  const {error}=await sb.from('speaker_requests').delete().eq('meeting_id',m.id).eq('member_id',profile.id);
+  if(error){alert(error.message);return}
+  renderSpeakerRequests();
+};
+
 async function renderHomeShortlist(){
   const box=$('homeShortlistBox');
   if(!profile||!box)return;
@@ -2335,7 +2401,7 @@ setInterval(async()=>{
   const cur=document.querySelector('.page.on');
   if(!cur)return;
   if(cur.id==='operations'){await refreshCurrentMeeting();renderChairBallot()}
-  if(cur.id==='home'){await refreshCurrentMeeting();renderLiveBallot();renderHomeShortlist()}
+  if(cur.id==='home'){await refreshCurrentMeeting();renderLiveBallot();renderHomeShortlist();renderSpeakerRequests()}
   if(cur.id==='vote'){loadVotePage()}
 },6000);
 
