@@ -350,7 +350,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 
 /* ---------- home / landing ---------- */
 .lead-in{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:16px}
-.how{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:14px}
 .how .c2{background:var(--paper);padding:24px 22px}
 .how .c2 .n{font-family:var(--d);font-weight:700;font-size:23px;color:var(--gold-dk);line-height:1;margin-bottom:14px}
 .how .c2 .t{font-family:var(--d);font-weight:600;font-size:19px;color:var(--navy);margin-bottom:7px;line-height:1.25}
@@ -488,10 +488,11 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
         <select id="s2">
           <option value="__req">Request a chapter (my school is not listed)</option>
         </select>
-        <div class="h">No chapter at your school yet? Choose the last option to start one.</div>
+        <div class="h">If your school already has a chapter, select it above. If it is not listed, choose "Request a chapter" to start one.</div>
       </div>
       <div id="reqFields" style="display:none">
         <div class="lf"><label for="reqSchool">School name</label><input id="reqSchool" placeholder="e.g. Roosevelt High School"></div>
+        <p class="h" style="margin:-6px 0 14px">Your account is created immediately. Until the Society approves your chapter, you will see example content instead of a real schedule. Once it is approved, you are moved in automatically and can start submitting topics and voting.</p>
         <div class="lf geo-wrap">
           <label for="reqAddress">School address</label>
           <input id="reqAddress" placeholder="Start typing an address or city and state…" autocomplete="off">
@@ -623,9 +624,10 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 
       <h3 class="sec gap">How our debates work</h3>
       <div class="how">
-        <div class="c2"><div class="n">01</div><div class="t">The room votes first</div><div class="w">Everyone votes on the motion before anyone speaks. It is a private ballot by QR code.</div></div>
-        <div class="c2"><div class="n">02</div><div class="t">Both sides make the case</div><div class="w">Openings, two rounds of open forum, then closings. The floor is open to any member and there is no sign-up to speak.</div></div>
-        <div class="c2"><div class="n">03</div><div class="t">The room votes again</div><div class="w">The side that changes more minds wins, even if it finishes in the minority.</div></div>
+        <div class="c2"><div class="n">01</div><div class="t">A topic gets chosen</div><div class="w">Members submit proposed topics. The chapter's chair narrows these to three, and the membership votes on which one becomes the next debate.</div></div>
+        <div class="c2"><div class="n">02</div><div class="t">The room votes first</div><div class="w">Everyone votes on the motion before anyone speaks. It is a private ballot by QR code.</div></div>
+        <div class="c2"><div class="n">03</div><div class="t">Two members argue each side</div><div class="w">Two members argue for the motion and two against, with open forum between rounds. Any other member may join in from the floor without signing up.</div></div>
+        <div class="c2"><div class="n">04</div><div class="t">The room votes again</div><div class="w">The side that changes more minds wins, even if it finishes in the minority.</div></div>
       </div>
       <p class="note" style="margin-bottom:26px">The side that wins is the one that changed the most minds, not the one that started ahead. Every result in the <a href="#" data-goto="archive" style="color:var(--gold-dk);text-decoration:underline;text-underline-offset:2px">archive</a> is scored that way.</p>
 
@@ -715,7 +717,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 
       <p>N.C.S. grew out of a society founded at Seattle Academy in 2025. A small group of students drawn to large, difficult questions found no place at school to discuss them, respectfully and across different friend groups, backgrounds, and political views, so they founded one.</p>
 
-      <p>Once the society was established, its founders created the National Civic Society to bring it to other schools. Each chapter is nonpartisan and student-led, and follows the same standing orders. Any high school in the country may start one.</p>
+      <p>Once the society was established, its founders created the National Civic Society to bring it to other schools. Each chapter is nonpartisan and student-led, and runs its debates the same way. Any high school in the country may start one.</p>
 
       <p>The room votes before and after every debate, so the measure of a debate is persuasion rather than performance. Speaking loudest or first sets a member back, not ahead. Any member present may speak, so the club is not four speakers and an audience. N.C.S. takes no institutional position of its own, regardless of political affiliation. Members argue every side of a question, sometimes a position they do not personally hold, and the result goes to whichever side changes more minds through civil dialogue, not volume. Some members join to sharpen how they argue, others to grow more comfortable speaking before a room, and many simply to spend an hour in a genuine, bipartisan conversation with people they disagree with.</p>
 
@@ -732,7 +734,7 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <!-- ---- SCHEDULE ---- -->
 <div class="page" id="schedule" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k" id="schedSeason">Loading…</div><h2>Schedule</h2>
-</div>
+    <p>Many chapters meet during lunch, twice a month, but each chapter sets its own cadence in Settings.</p></div>
   <div class="examplebox" id="schedExampleNote" style="display:none">
     <div class="tag">⚠ Example: not real data</div>
     <p>This is a sample schedule showing what a typical run of meetings looks like, not any chapter's actual dates. <button id="schedJoinBtn" style="color:var(--gold-dk);text-decoration:underline;font-weight:700">Join</button> to see your own chapter's real schedule.</p>
@@ -805,8 +807,8 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
   <div class="chs" id="chlist"></div>
   <div id="chdetail"></div>
   <div class="reqch" style="margin-top:18px">
-    <div class="rt2">Do not see your school?</div>
-    <div class="rw2">Any high school may start a chapter. Register and choose "Request a chapter" from the school list to begin.</div>
+    <div class="rt2">Do not see your school above?</div>
+    <div class="rw2">The list above is every current chapter. If your school is not on it, any high school may start one. Register and choose "Request a chapter" from the school list to begin.</div>
     <button class="topbtn solid" id="chReqBtn" style="padding:11px 20px">Request a chapter</button>
   </div>
 </div></div>
@@ -1482,14 +1484,18 @@ $('logout').onclick=async()=>{
 sb.auth.onAuthStateChange((_event,_s)=>{ refreshSession(); });
 
 /* ---------- nav ---------- */
-function go(p){
-  const btn=document.querySelector('nav button[data-p="'+p+'"]');
+/* renderPage does the actual page switch with no history side effects,
+   so both a normal nav click (go, below) and a browser back/forward
+   press (the popstate listener) can share it without pushing a
+   duplicate or missing history entry. */
+function renderPage(p){
   const isLead=S.auth&&(effectiveRole()==='leader'||effectiveRole()==='national_admin');
-  if(btn){
-    if(btn.classList.contains('ldr')&&!isLead){openAuth('signin');return}
-    if(btn.classList.contains('mbr')&&!S.auth){openAuth('signin');return}
-    if(btn.classList.contains('natadmin')&&effectiveRole()!=='national_admin'){openAuth('signin');return}
-  }
+  // guards against landing on a gated page via back/forward after
+  // signing out (or never having had access) — go() below also
+  // checks this before ever calling renderPage, so this only fires
+  // on the popstate path
+  const btn=document.querySelector('nav button[data-p="'+p+'"]');
+  if(btn&&((btn.classList.contains('ldr')&&!isLead)||(btn.classList.contains('mbr')&&!S.auth)||(btn.classList.contains('natadmin')&&effectiveRole()!=='national_admin'))) p='home';
   document.querySelectorAll('nav button').forEach(x=>{
     const sel=x.dataset.p===p;
     x.setAttribute('aria-selected',sel?'true':'false');
@@ -1506,6 +1512,21 @@ function go(p){
   if(p==='requests'&&effectiveRole()==='national_admin')loadChapterRequests();
   window.scrollTo(0,0);
 }
+function go(p){
+  const btn=document.querySelector('nav button[data-p="'+p+'"]');
+  const isLead=S.auth&&(effectiveRole()==='leader'||effectiveRole()==='national_admin');
+  if(btn){
+    if(btn.classList.contains('ldr')&&!isLead){openAuth('signin');return}
+    if(btn.classList.contains('mbr')&&!S.auth){openAuth('signin');return}
+    if(btn.classList.contains('natadmin')&&effectiveRole()!=='national_admin'){openAuth('signin');return}
+  }
+  if(location.hash.slice(1)!==p) history.pushState({p},'','#'+p);
+  renderPage(p);
+}
+window.addEventListener('popstate',(e)=>{
+  const p=(e.state&&e.state.p)||(location.hash?location.hash.slice(1):'home');
+  if($(p)) renderPage(p);
+});
 document.querySelectorAll('nav button').forEach(b=>{
   b.id='tab-'+b.dataset.p;
   b.setAttribute('aria-controls',b.dataset.p);
