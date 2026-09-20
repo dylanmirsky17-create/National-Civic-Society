@@ -65,10 +65,10 @@ Deno.serve(async (req) => {
     }
 
     const chapterName = (report as any).chapters?.name ?? "your chapter";
-    const subject = `New anonymous report — ${chapterName}`;
+    const subject = `New anonymous report: ${chapterName}`;
     const text =
       `Category: ${report.category}\n\n${report.body}\n\n` +
-      `Submitted anonymously — no reporter identity is stored anywhere, ` +
+      `This report was submitted anonymously. No reporter identity is stored anywhere, ` +
       `so this notification is all the information that exists about who sent it.`;
 
     const res = await fetch("https://api.resend.com/emails", {
