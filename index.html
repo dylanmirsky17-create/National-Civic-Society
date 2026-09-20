@@ -952,6 +952,14 @@ footer button{color:var(--gold);text-decoration:underline;text-underline-offset:
 <div class="page" id="chair" role="tabpanel"><div class="wrap">
   <div class="ph"><div class="k"><span id="chairRoom">TBD</span></div><h2>Chair's run sheet</h2>
     <p>Chairing tonight: <b id="chairName">—</b>.</p></div>
+  <div class="field" style="margin-bottom:18px">
+    <label for="chairTopic">Tonight's topic</label>
+    <input id="chairTopic" placeholder="What is being debated?">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn gh" id="chairTopicSave">Set topic</button>
+      <span class="note" id="chairTopicNote" style="margin:0"></span>
+    </div>
+  </div>
   <div class="console">
     <div class="ctop"><span>Live</span><span class="tn" id="elapsed">00:00 / 29:30</span></div>
     <div class="cbody">
@@ -1514,7 +1522,15 @@ function renderPage(p){
   if(p==='vote')loadVotePage();
   if(p==='submit')loadSubmitPage();
   if(p==='account')loadAccountPage();
-  if(p==='chair'&&profile){const cn=$('chairName');if(cn)cn.textContent=profile.full_name}
+  if(p==='chair'&&profile){
+    const cn=$('chairName');if(cn)cn.textContent=profile.full_name;
+    // re-fetch on every visit rather than trusting whatever was
+    // loaded at login: a leader could have changed the active
+    // format or the meeting's topic from another device (or from
+    // Admin/Operations earlier in the same session but on a stale
+    // CHAPTER_MEETINGS) since this page was last open
+    if(isLead) loadChapterSettings().then(loadChairTopic);
+  }
   if(p==='home'&&profile){refreshCurrentMeeting().then(renderLiveBallot);renderHomeShortlist()}
   if(p==='operations'&&isLead){loadOperationsPage();refreshCurrentMeeting().then(renderChairBallot)}
   if(p==='admin'&&isLead){loadReports();loadRoster();}
@@ -2058,6 +2074,35 @@ $('tdefault').onclick=()=>{
   FORMATS[EDIT_FORMAT]=JSON.parse(JSON.stringify(FORMATS_DEFAULT[EDIT_FORMAT]));
   if(EDIT_FORMAT===ACTIVE_FORMAT){SEG=FORMATS[ACTIVE_FORMAT].segments;halt();i=0;left=SEG[0].d;buildList();paint()}
   buildEd();
+};
+
+/* ---------- chair: set the meeting topic directly, instead of only
+   through Operations' shortlist workflow ---------- */
+function loadChairTopic(){
+  const m=CHAPTER_MEETINGS[0];
+  $('chairTopic').value=(m&&m.motions)?m.motions.claim:'';
+  $('chairTopicNote').textContent='';
+}
+$('chairTopicSave').onclick=async function(){
+  if(!profile)return;
+  const m=CHAPTER_MEETINGS[0];
+  if(!m){alert('No meeting scheduled yet. Add one in Settings, under Debate schedule, first.');return}
+  const claim=$('chairTopic').value.trim();
+  if(!claim){$('chairTopic').focus();return}
+  this.disabled=true;this.textContent='Saving…';
+  if(m.motion_id){
+    const {error}=await sb.from('motions').update({claim}).eq('id',m.motion_id);
+    if(error){this.disabled=false;this.textContent='Set topic';alert(error.message);return}
+  } else {
+    const {data:newMotion,error}=await sb.from('motions').insert({chapter_id:activeChapterId(),submitted_by:profile.id,claim,shortlisted:true}).select().single();
+    if(error){this.disabled=false;this.textContent='Set topic';alert(error.message);return}
+    const {error:linkErr}=await sb.from('meetings').update({motion_id:newMotion.id}).eq('id',m.id);
+    if(linkErr){this.disabled=false;this.textContent='Set topic';alert(linkErr.message);return}
+  }
+  this.disabled=false;this.textContent='Set topic';
+  await loadChapterSettings();
+  loadChairTopic();
+  $('chairTopicNote').textContent='Topic updated.';
 };
 
 /* ---------- settings (persisted per-chapter in Supabase) ---------- */
