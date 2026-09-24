@@ -434,7 +434,7 @@ grant select on motion_vote_counts to authenticated, anon;
 -- so it's safe to expose even though `profiles` itself is locked down
 create view public_stats as
   select
-    (select count(*) from chapters where status in ('active', 'founding')) as active_chapters,
+    (select count(*) from chapters where status in ('active', 'founding') and not is_placeholder) as active_chapters,
     (select count(*) from profiles) as total_members,
     (select count(*) from meetings where status = 'completed') as debates_held;
 
