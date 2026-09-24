@@ -1435,10 +1435,17 @@ $('doreg').onclick=async function(){
       const coords=await geocodeLocation(pendingAddress);
       if(coords){pendingLat=coords.lat;pendingLng=coords.lng}
     }
-    await sb.from('chapter_requests').insert({
-      school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email,
+    // id is generated client-side, not read back via .select(): the
+    // insert policy lets anyone file a request, but only a national
+    // admin can ever read chapter_requests rows back, so a
+    // RETURNING/.select() here would fail for everyone else (the
+    // same RLS trap the reports flow works around the same way)
+    const requestId=crypto.randomUUID();
+    const {error:reqErr}=await sb.from('chapter_requests').insert({
+      id:requestId,school_name:pendingSchool,requested_by_name:full_name,requested_by_email:email,
       location:pendingAddress,lat:pendingLat,lng:pendingLng
     });
+    if(!reqErr) sb.functions.invoke('notify-chapter-request',{body:{request_id:requestId}}).catch(()=>{});
     resetReqFields();
   }
   const {data:{session:s}}=await sb.auth.getSession();
